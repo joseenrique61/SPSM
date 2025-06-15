@@ -2,16 +2,15 @@
 using NotificationService.Application.DTOs;
 using NotificationService.Application.Services;
 
-namespace NotificationsService.Presentation.Controllers
+namespace NotificationService.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/{controller}")]
-    public class NotificationsController : ControllerBase
+    [Route("api/notification")]
+    public class NotificationController : ControllerBase
     {
         private readonly NotificationAppService _appService;
-        public NotificationsController(NotificationAppService appService)
+        public NotificationController(NotificationAppService appService)
         {
-
             _appService = appService;
         }
 

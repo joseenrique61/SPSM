@@ -3,13 +3,12 @@ using NotificationService.Application.Interfaces;
 
 namespace NotificationService.Infraestructure.NotificationsProvider
 {
-    // Deprecated
     public class SMSProvider : INotificationProvider
     {
         private readonly ILogger<SMSProvider> _logger;
         private readonly string? ApiKey;
 
-        public string providerType => "SMS";
+        public string ProviderType => "sms";
 
         public SMSProvider (ILogger<SMSProvider> logger, IConfiguration configuration)
         {
@@ -18,7 +17,7 @@ namespace NotificationService.Infraestructure.NotificationsProvider
 
             if (ApiKey == null)
             {
-                _logger.LogWarning("La API Key para SMSProvider no está configurada en secretos/appsettings.");
+                _logger.LogWarning("The API Key for SMSProvider is not configured in secrets/appsettings.");
             }
         }
 
@@ -26,15 +25,15 @@ namespace NotificationService.Infraestructure.NotificationsProvider
         {
             try
             {
-                // Aquí iría la lógica real de envío...
+                // Here would be the actual shipping logic...
 
-                _logger.LogInformation($"Mensaje enviado a {recipient} por medio de: {providerType}, encabezado:{subject}, mensaje:{body}");
+                _logger.LogInformation($"Message sent to {recipient} via: {ProviderType}, header: {subject}, message: {body}");
 
                 return Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al intentar enviar EMAIL a {Recipient}.", recipient);
+                _logger.LogError(ex, "Error trying to send an EMAIL to {Recipient}.", recipient);
 
                 return Task.FromResult(false);
             }

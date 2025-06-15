@@ -14,7 +14,6 @@ namespace NotificationService.Infraestructure.Persistence.Repositories
         public async Task AddAsync(Notification notification)
         {
             await _context.Notification.AddAsync(notification);
-            //await _context.SaveChangesAsync();
         }
 
         public async Task<Notification> GetById(Guid id)

@@ -15,28 +15,30 @@ namespace NotificationService.Infraestructure.NotificationsProvider
         private readonly string addressFrom;
         private readonly string displayName;
 
-        public string providerType => "email";
+        public string ProviderType => "email";
 
-        public EmailProvider(ILogger<EmailProvider> logger,IConfiguration configuration)
+        public EmailProvider(ILogger<EmailProvider> logger, IConfiguration configuration)
         {
             _logger = logger;
 
             addressFrom = configuration["EmailSettings:From"] ?? "";
             displayName = configuration["EmailSettings:DisplayName"] ?? "";
-            
-            // The password value is only used in the Email Provider Constructor
+
+            // The password and host value is only used in the Email Provider Constructor
+            string host = configuration["EmailSettings:Host"] ?? "";
+            string port = configuration["EmailSettings:Host"] ?? "";
             string password = configuration["EmailSettings:Password"] ?? "";
 
-            if (string.IsNullOrEmpty(addressFrom) || string.IsNullOrEmpty(addressFrom))
+            if (string.IsNullOrEmpty(addressFrom) || string.IsNullOrEmpty(addressFrom) || int.TryParse(port, out int result))
             {
-                _logger.LogWarning("The EmailProvider From or DisplayName is not configured in .env.");
-                throw new Exception("The EmailProvider From or DisplayName is not configured in .env.");
+                _logger.LogWarning("The EmailProvider From or DisplayName  or Port is not configured in .env.");
+                throw new Exception("The EmailProvider From or DisplayName or Port is not configured in .env.");
             }
 
             smtpClient = new SmtpClient
             {
-                Host = "smtp.gmail.com",
-                Port = 587,
+                Host = host,
+                Port = int.Parse(port),
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
@@ -57,13 +59,13 @@ namespace NotificationService.Infraestructure.NotificationsProvider
                 
                 await smtpClient.SendMailAsync(message);
 
-                _logger.LogInformation($"Mensaje enviado a {recipient} por medio de: {providerType}, encabezado:{subject}, mensaje:{body}");
+                _logger.LogInformation($"Message sent to {recipient} via: {ProviderType}, header: {subject}, message: {body}");
 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al intentar enviar EMAIL a {Recipient}.", recipient);
+                _logger.LogError(ex, "Error trying to send an EMAIL to {Recipient}.", recipient);
 
                 return false;
             }
