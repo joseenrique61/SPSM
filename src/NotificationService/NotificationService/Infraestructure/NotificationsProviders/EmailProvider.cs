@@ -31,8 +31,8 @@ namespace NotificationService.Infraestructure.NotificationsProvider
 
             if (string.IsNullOrEmpty(addressFrom) || string.IsNullOrEmpty(addressFrom) || int.TryParse(port, out int result))
             {
-                _logger.LogWarning("The EmailProvider From or DisplayName  or Port is not configured in .env.");
-                throw new Exception("The EmailProvider From or DisplayName or Port is not configured in .env.");
+                _logger.LogWarning("The EmailProvider From or DisplayName  or Port for EmailProvider is not configured in .env.");
+                throw new Exception("The EmailProvider From or DisplayName or Port for EmailProvider is not configured in .env.");
             }
 
             smtpClient = new SmtpClient

@@ -16,7 +16,9 @@ services:
       - EmailSettings__DisplayName=${DISPLAY_NAME}
       - EmailSettings__Password=${PASSWORD}
       - EmailSettings__Host=${HOST}
-      - NotificationProviders__SmsApiKey=${SMS_API_KEY}
+      - SmsSettings__AccountSid=${ACCOUNT_SID}
+      - SmsSettings__AuthToken=${AUTH_TOKEN}
+      - SmsSettings__TwilioNumber=${TWILIO_NUMBER}
 
     depends_on:
       sqlserver:

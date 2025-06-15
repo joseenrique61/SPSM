@@ -1,31 +1,47 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Identity.Client;
 using NotificationService.Application.Interfaces;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
 
 namespace NotificationService.Infraestructure.NotificationsProvider
 {
     public class SMSProvider : INotificationProvider
     {
         private readonly ILogger<SMSProvider> _logger;
-        private readonly string? ApiKey;
 
+        private readonly string twilioNumber;
         public string ProviderType => "sms";
 
         public SMSProvider (ILogger<SMSProvider> logger, IConfiguration configuration)
         {
             _logger = logger;
-            ApiKey = configuration["NotificationsProvider:SMSApiKey"] ?? "API_NOT_CONFIGURED";
 
-            if (ApiKey == null)
+            twilioNumber = configuration["SmsSettings:TwilioNumber"] ?? "";
+
+            string accountSid = configuration["SmsSettings:AccountSid"] ?? "";
+            string authToken = configuration["SmsSettings:AuthToken"] ?? "";
+
+            if (string.IsNullOrEmpty(accountSid) || string.IsNullOrEmpty(authToken) || string.IsNullOrEmpty(twilioNumber))
             {
-                _logger.LogWarning("The API Key for SMSProvider is not configured in secrets/appsettings.");
+                _logger.LogWarning("The AccountSId or AuthToken Key or TwilioNumber for SMSProvider  is not configured in .env.");
+                throw new Exception("The AccountSId or AuthToken Key or TwilioNumber for SMSProvider  is not configured in .env.");
             }
+
+            TwilioClient.Init(
+                accountSid,
+                authToken
+                );
         }
 
-        public Task<bool> SendAsync(string recipient, string subject, string body)
+        public Task<bool> SendAsync(string recipient, string? subject, string body)
         {
             try
             {
-                // Here would be the actual shipping logic...
+                MessageResource.Create(
+                    to: new PhoneNumber(recipient),
+                    from: new PhoneNumber(twilioNumber),
+                    body: body);
 
                 _logger.LogInformation($"Message sent to {recipient} via: {ProviderType}, header: {subject}, message: {body}");
 
