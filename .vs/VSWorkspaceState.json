@@ -1,9 +1,7 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\src",
-    "\\src\\NotificationService"
+    ""
   ],
-  "SelectedNode": "\\src\\NotificationService\\NotificationService",
+  "SelectedNode": "\\NotificationService.sln",
   "PreviewInSolutionExplorer": false
 }
