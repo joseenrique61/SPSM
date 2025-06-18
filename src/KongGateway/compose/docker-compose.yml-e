@@ -1,17 +1,14 @@
-﻿networks:
-  app-net:
-    driver: bridge
+version: '3.9'
 
 x-kong-config:
   &kong-env
-  KONG_DATABASE: ${KONG_DATABASE:-postgres}
+  KONG_DATABASE: ${KONG_DATABASE:-off}
   KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-  KONG_PG_HOST: postgres
-  KONG_PG_USER: ${POSTGRES_USER}
-  KONG_PG_PASSWORD: ${POSTGRES_PASSWORD}
+  KONG_PG_HOST: db
+  KONG_PG_USER: ${KONG_PG_USER:-kong}
+  KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
 
 volumes:
-  postgres_data:
   kong_data: {}
   kong_prefix_vol:
     driver_opts:
@@ -22,79 +19,42 @@ volumes:
       type: tmpfs
       device: tmpfs
 
+networks:
+  kong-net:
+    external: false
+
 services:
-  postgres:
-    image: postgres:17
-    container_name: db_postgres_spsm
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./src/KongGateway/compose/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
-    networks:
-      - app-net
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "pg_isready",
-          "-d",
-          "${KONG_PG_DATABASE:-kong}",
-          "-U",
-          "${POSTGRES_USER}"
-        ]
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    restart: on-failure
-    stdin_open: true
-    tty: true
-
-  search_service:
-    image: search_service
-    depends_on:
-      - postgres
-      - kong
-    environment:
-      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
-    build:
-      context: src/SearchService
-      dockerfile: SearchService/Dockerfile
-    ports:
-      - "${APP_PORT}:8080"
-    networks:
-      - app-net
-    restart: on-failure:5
-
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
+    profiles: [ "database" ]
     depends_on:
-      - postgres
+      - db
     environment:
       <<: *kong-env
+    secrets:
+      - kong_postgres_password
     networks:
-      - app-net
+      - kong-net
     restart: on-failure
 
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations up && kong migrations finish
+    profiles: [ "database" ]
     depends_on:
-      - postgres
+      - db
     environment:
       <<: *kong-env
+    secrets:
+      - kong_postgres_password
     networks:
-      - app-net
+      - kong-net
     restart: on-failure
 
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
-    user: "${KONG_USER}"
+    user: "${KONG_USER:-kong}"
     environment:
       <<: *kong-env
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
@@ -106,8 +66,10 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
       KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+    secrets:
+      - kong_postgres_password
     networks:
-      - app-net
+      - kong-net
     ports:
       # The following two environment variables default to an insecure value (0.0.0.0)
       # according to the CIS Security test.
@@ -134,6 +96,37 @@ services:
       - ./config:/opt/kong
     security_opt:
       - no-new-privileges
-    depends_on:
-      - kong-migrations
-      - kong-migrations-up
+
+  db:
+    image: postgres:9.5
+    profiles: [ "database" ]
+    environment:
+      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
+      POSTGRES_USER: ${KONG_PG_USER:-kong}
+      POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-d",
+          "${KONG_PG_DATABASE:-kong}",
+          "-U",
+          "${KONG_PG_USER:-kong}"
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    stdin_open: true
+    tty: true
+    networks:
+      - kong-net
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+
+secrets:
+  kong_postgres_password:
+    file: ./POSTGRES_PASSWORD

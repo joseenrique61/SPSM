@@ -1,0 +1,13 @@
+# a very minimal declarative config file
+_format_version: "2.1"
+_transform: true
+
+services:
+  - name: product-service
+    url: http://productos:5000  # URL interna del microservicio de productos
+    routes:
+      - name: productos-route
+        paths:
+          - /productos
+        methods:
+          - GET
