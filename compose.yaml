@@ -54,22 +54,6 @@ services:
     stdin_open: true
     tty: true
 
-  search_service:
-    image: search_service
-    depends_on:
-      - postgres
-      - kong
-    environment:
-      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
-    build:
-      context: src/SearchService
-      dockerfile: SearchService/Dockerfile
-    ports:
-      - "${APP_PORT}:8080"
-    networks:
-      - app-net
-    restart: on-failure:5
-
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
@@ -137,3 +121,35 @@ services:
     depends_on:
       - kong-migrations
       - kong-migrations-up
+
+  data_seeder:
+    image: data_seeder
+    profiles: ["seeding"]
+    depends_on:
+      - postgres
+      - search_service
+    environment:
+      - ConnectionStrings__InventoryConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${INVENTORY_DB}
+      - ConnectionStrings__SearchConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+    build:
+      context: src/DataSeeder
+      dockerfile: DataSeeder/Dockerfile
+    networks:
+      - app-net
+    restart: on-failure:5
+
+  search_service:
+    image: search_service
+    depends_on:
+      - postgres
+      - kong
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+    build:
+      context: src/SearchService
+      dockerfile: SearchService/Dockerfile
+    ports:
+      - "${APP_PORT}:8080"
+    networks:
+      - app-net
+    restart: on-failure:5

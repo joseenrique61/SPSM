@@ -10,7 +10,7 @@ public class Category
     [Key]
     public int Id { get; set; }
 
-    [Required, MaxLength(15)]
+    [Required, MaxLength(40)]
     public required string Name { get; set; }
 
     [JsonIgnore]
