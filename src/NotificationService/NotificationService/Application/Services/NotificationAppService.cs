@@ -30,12 +30,12 @@ namespace NotificationService.Application.Services
                 return false;
             }
 
-            var notification = Notification.Create(
-                notificationType,
-                request.Recipient,
-                request.Subject,
-                request.Body!
-            );
+            var notification = new Notification();
+
+            notification.Type = notificationType;
+            notification.Recipient = request.Recipient!;
+            notification.Subject = request.Subject;
+            notification.Body = request.Body!;
 
             await _repository.AddAsync(notification);
             await _context.SaveChangesAsync();
