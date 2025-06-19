@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "targetProject": "notification_service",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "notificationservice": "StartDebugging"
+      }
+    }
+  }
+}
