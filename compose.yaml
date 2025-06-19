@@ -33,7 +33,6 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./src/KongGateway/compose/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     networks:
       - app-net
     healthcheck:
@@ -92,7 +91,7 @@ services:
     volumes:
       - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong}
       - kong_tmp_vol:/tmp
-      - ./src/KongGateway/compose/config:/opt/kong
+      - ./src/KongGateway/config/:/opt/kong
     security_opt:
       - no-new-privileges
 
