@@ -34,7 +34,7 @@ namespace NotificationService.Infraestructure.NotificationsProvider
                 );
         }
 
-        public Task<bool> SendAsync(string recipient, string? subject, string body)
+        public Task<bool> SendAsync(string recipient, string?    subject, string body)
         {
             try
             {

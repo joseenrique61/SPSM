@@ -7,7 +7,7 @@ services:
     container_name: notification_service_container
 
     ports:
-      - "8080:8080"
+      - "5001:8080"
 
     environment:
       - ASPNETCORE_URLS=http://+:8080
@@ -16,6 +16,7 @@ services:
       - EmailSettings__DisplayName=${DISPLAY_NAME}
       - EmailSettings__Password=${PASSWORD}
       - EmailSettings__Host=${HOST}
+      - EmailSettings__Port=${PORT}
       - SmsSettings__AccountSid=${ACCOUNT_SID}
       - SmsSettings__AuthToken=${AUTH_TOKEN}
       - SmsSettings__TwilioNumber=${TWILIO_NUMBER}

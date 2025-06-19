@@ -26,19 +26,20 @@ namespace NotificationService.Infraestructure.NotificationsProvider
 
             // The password and host value is only used in the Email Provider Constructor
             string host = configuration["EmailSettings:Host"] ?? "";
-            string port = configuration["EmailSettings:Host"] ?? "";
+            string port = configuration["EmailSettings:Port"] ?? "";
             string password = configuration["EmailSettings:Password"] ?? "";
+            
 
-            if (string.IsNullOrEmpty(addressFrom) || string.IsNullOrEmpty(addressFrom) || int.TryParse(port, out int result))
+            if (string.IsNullOrEmpty(addressFrom) || string.IsNullOrEmpty(displayName) || !int.TryParse(port, out int portNumber))
             {
-                _logger.LogWarning("The EmailProvider From or DisplayName  or Port for EmailProvider is not configured in .env.");
+                _logger.LogWarning("The EmailProvider From or DisplayName or Port for EmailProvider is not configured in .env.");
                 throw new Exception("The EmailProvider From or DisplayName or Port for EmailProvider is not configured in .env.");
             }
 
             smtpClient = new SmtpClient
             {
                 Host = host,
-                Port = int.Parse(port),
+                Port = portNumber,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
