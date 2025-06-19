@@ -3,11 +3,17 @@ _format_version: "2.1"
 _transform: true
 
 services:
-  - name: product-service
-    url: http://productos:5000  # URL interna del microservicio de productos
+  - name: search-service
+    url: http://search_service:8080  # URL interna del microservicio de productos
     routes:
-      - name: productos-route
+      - name: search-by-id
         paths:
-          - /productos
+          - /product/id
         methods:
           - GET
+        strip_path: false
+upstreams:
+  - name: localhost
+    targets:
+      - target: search_service:8080
+        weight: 100
