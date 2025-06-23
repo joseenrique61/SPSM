@@ -114,8 +114,13 @@ services:
   search_service:
     image: search_service
     depends_on:
-      - postgres
-      - kong
+      postgres:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
     build:
@@ -126,3 +131,23 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+
+  rabbitmq:
+    # Last RabbitMQ version
+    image: rabbitmq:4.1.1-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+    # - "15672:15672"
+    volumes:
+      # We need to run start.sh first before run docker compose file 
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    networks:
+      - app-net
+    restart: on-failure:5
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s 
