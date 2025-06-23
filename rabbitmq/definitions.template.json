@@ -1,0 +1,117 @@
+{
+    "vhosts": [
+        {
+            "name": "dev"
+        }
+    ],
+    "users": [
+        {
+            "name": "__RABBITMQ_USERNAME__",
+            "password_hash": "__RABBITMQ_PASSWORD_HASH__",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": "management"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "__RABBITMQ_USERNAME__",
+            "vhost": "dev",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "exchanges": [
+        {
+            "name": "payment.exchange",
+            "vhost": "dev",
+            "type": "topic",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        },
+        {
+            "name": "inventory.exchange",
+            "vhost": "dev",
+            "type": "topic",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        },
+        {
+            "name": "orders.exchange",
+            "vhost": "dev",
+            "type": "topic",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    "queues": [
+        {
+            "name": "payment.initiate-payment",
+            "vhost": "dev",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "search.update-stock",
+            "vhost": "dev",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "notification.send-notification",
+            "vhost": "dev",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "inventory.decrease-stock",
+            "vhost": "dev",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": [
+        {
+            "source": "orders.exchange",
+            "vhost": "dev",
+            "destination": "payment.initiate-payment",
+            "destination_type": "queue",
+            "routing_key": "orders.created",
+            "arguments": {}
+        },
+        {
+            "source": "inventory.exchange",
+            "vhost": "dev",
+            "destination": "search.update-stock",
+            "destination_type": "queue",
+            "routing_key": "inventory.updated",
+            "arguments": {}
+        },
+        {
+            "source": "payment.exchange",
+            "vhost": "dev",
+            "destination": "notification.send-notification",
+            "destination_type": "queue",
+            "routing_key": "payment.#",
+            "arguments": {}
+        },
+        {
+            "source": "payment.exchange",
+            "vhost": "dev",
+            "destination": "inventory.decrease-stock",
+            "destination_type": "queue",
+            "routing_key": "payment.confirm-order-purchased",
+            "arguments": {}
+        }
+    ]
+}
