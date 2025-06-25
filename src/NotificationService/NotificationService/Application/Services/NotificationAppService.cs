@@ -27,7 +27,7 @@ namespace NotificationService.Application.Services
             if (!Enum.TryParse<NotificationType>(request.Type, ignoreCase: true, out var notificationType))
             {
                 _logger.LogWarning("Invalid notification type received: {NotificationType}", request.Type);
-                return false;
+                return false; 
             }
 
             var notification = new Notification();
