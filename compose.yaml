@@ -12,6 +12,7 @@ x-kong-config:
 
 volumes:
   postgres_data:
+  rabbitmq_data:
   kong_prefix_vol:
     driver_opts:
       type: tmpfs
@@ -24,7 +25,6 @@ volumes:
 services:
   postgres:
     image: postgres:17
-    container_name: db_postgres_spsm
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -135,13 +135,14 @@ services:
   rabbitmq:
     # Last RabbitMQ version
     image: rabbitmq:4.1.1-management
-    container_name: rabbitmq
     ports:
       - "5672:5672"
-    # - "15672:15672"
+      - "15672:15672"
     volumes:
       # We need to run start.sh first before run docker compose file 
-      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ./src/RabbitMQ/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./src/RabbitMQ/definitions.json:/etc/rabbitmq/definitions.json
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - app-net
     restart: on-failure:5
