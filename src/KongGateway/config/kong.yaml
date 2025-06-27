@@ -31,6 +31,12 @@ services:
         methods:
           - POST
         strip_path: false
+      - name: login
+        paths:
+          - /user/login
+        methods:
+          - POST
+        strip_path: false
 
 # This section can produce redundancy. We should delete it from the kong.yaml
 upstreams:

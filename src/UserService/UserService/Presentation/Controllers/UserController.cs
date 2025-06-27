@@ -19,4 +19,16 @@ public class UserController(IUserRepository userRepository) : Controller
 
         return await userRepository.RegisterUserAsync(client) ? Ok() : Conflict("The user already exists.");
     }
+
+    [HttpPost]
+    [Route("login")]
+    public async Task<IActionResult> Login([FromBody] User? user)
+    {
+        if (user?.Password == null)
+        {
+            return Unauthorized("User is empty.");
+        }
+
+        return await userRepository.LoginAsync(user) ? Ok() : Unauthorized("The user and/or password are incorrect.");
+    }
 }
