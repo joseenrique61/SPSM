@@ -45,8 +45,8 @@ services:
           "-U",
           "${POSTGRES_USER}"
         ]
-      interval: 30s
-      timeout: 30s
+      interval: 10s
+      timeout: 10s
       retries: 3
     restart: on-failure
     stdin_open: true
@@ -95,6 +95,27 @@ services:
     security_opt:
       - no-new-privileges
 
+  rabbitmq:
+    # Last RabbitMQ version
+    image: rabbitmq:4.1.1-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      # We need to run start.sh first before run docker compose file 
+      - ./src/RabbitMQ/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./src/RabbitMQ/definitions.json:/etc/rabbitmq/definitions.json
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - app-net
+    restart: on-failure:5
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s 
+
   data_seeder:
     image: data_seeder
     profiles: ["seeding"]
@@ -126,29 +147,23 @@ services:
     build:
       context: src/SearchService
       dockerfile: SearchService/Dockerfile
-    ports:
-      - "${APP_PORT}:8080"
     networks:
       - app-net
     restart: on-failure:5
 
-  rabbitmq:
-    # Last RabbitMQ version
-    image: rabbitmq:4.1.1-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      # We need to run start.sh first before run docker compose file 
-      - ./src/RabbitMQ/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ./src/RabbitMQ/definitions.json:/etc/rabbitmq/definitions.json
-      - rabbitmq_data:/var/lib/rabbitmq
+  user_service:
+    image: user_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${USERS_DB}
+    build:
+      context: src/UserService
+      dockerfile: UserService/Dockerfile
     networks:
       - app-net
     restart: on-failure:5
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s 
