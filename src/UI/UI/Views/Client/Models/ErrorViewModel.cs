@@ -1,4 +1,4 @@
-namespace SparePartsStoreWeb.Views.Client.Models
+namespace UI.Views.Client.Models
 {
     public class ErrorViewModel
     {
