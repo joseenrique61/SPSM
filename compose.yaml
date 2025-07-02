@@ -12,6 +12,7 @@ x-kong-config:
 
 volumes:
   postgres_data:
+  rabbitmq_data:
   kong_prefix_vol:
     driver_opts:
       type: tmpfs
@@ -24,7 +25,6 @@ volumes:
 services:
   postgres:
     image: postgres:17
-    container_name: db_postgres_spsm
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -45,8 +45,8 @@ services:
           "-U",
           "${POSTGRES_USER}"
         ]
-      interval: 30s
-      timeout: 30s
+      interval: 10s
+      timeout: 10s
       retries: 3
     restart: on-failure
     stdin_open: true
@@ -95,6 +95,27 @@ services:
     security_opt:
       - no-new-privileges
 
+  rabbitmq:
+    # Last RabbitMQ version
+    image: rabbitmq:4.1.1-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      # We need to run start.sh first before run docker compose file 
+      - ./src/RabbitMQ/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./src/RabbitMQ/definitions.json:/etc/rabbitmq/definitions.json
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - app-net
+    restart: on-failure:5
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s 
+
   data_seeder:
     image: data_seeder
     profiles: ["seeding"]
@@ -120,34 +141,29 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
     build:
       context: src/SearchService
       dockerfile: SearchService/Dockerfile
-    ports:
-      - "${APP_PORT}:8080"
     networks:
       - app-net
     restart: on-failure:5
 
-  rabbitmq:
-    # Last RabbitMQ version
-    image: rabbitmq:4.1.1-management
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-    # - "15672:15672"
-    volumes:
-      # We need to run start.sh first before run docker compose file 
-      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+  user_service:
+    image: user_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${USERS_DB}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+    build:
+      context: src/UserService
+      dockerfile: UserService/Dockerfile
     networks:
       - app-net
     restart: on-failure:5
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s 
