@@ -6,7 +6,7 @@ namespace UserService.Presentation.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class UserController(IUserRepository userRepository) : Controller
+public class UserController(IUserRepository userRepository, ILogger<UserController> logger) : Controller
 {
     [HttpPost]
     [Route("register")]
@@ -17,7 +17,15 @@ public class UserController(IUserRepository userRepository) : Controller
             return Unauthorized("User is empty.");
         }
 
-        return await userRepository.RegisterUserAsync(client) ? Ok() : Conflict("The user already exists.");
+        try
+        {
+            var response = await userRepository.RegisterUserAsync(client);
+            return Ok(response);
+        }
+        catch
+        {
+            return Conflict("The user already exists.");
+        }
     }
 
     [HttpPost]
@@ -29,6 +37,15 @@ public class UserController(IUserRepository userRepository) : Controller
             return Unauthorized("User is empty.");
         }
 
-        return await userRepository.LoginAsync(user) ? Ok() : Unauthorized("The user and/or password are incorrect.");
+        try
+        {
+            var response = await userRepository.LoginAsync(user);
+            return Ok(response);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e.Message);
+            return Unauthorized("The user and/or password are incorrect.");
+        }
     }
 }

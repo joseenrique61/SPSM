@@ -1,0 +1,55 @@
+# A very minimal declarative config file
+_format_version: "2.1"
+_transform: true
+
+services:
+  - name: rabbitmq-management-ui
+    # Point to the rabbitmq service on its management port
+    url: http://rabbitmq:15672
+    routes:
+      - name: rabbitmq-management-ui-route
+        # The public route we'll use to access the UI through Kong
+        paths:
+          - /rabbitmq-ui
+        # Important: Remove the /rabbitmq-ui prefix before sending it to
+        strip_path: true
+  - name: search-service
+    url: http://search_service:8080  # Internal URL of the product
+    routes:
+      - name: search-by-id
+        paths:
+          - /product/id/
+        methods:
+          - GET
+        strip_path: false
+        #plugins:
+        #  - name: jwt
+        #    config:
+        #      claims_to_verify:
+        #        - exp
+  - name: user-service
+    url: http://user_service:8080  # Internal URL of the product
+    routes:
+      - name: register
+        paths:
+          - /user/register
+        methods:
+          - POST
+        strip_path: false
+      - name: login
+        paths:
+          - /user/login
+        methods:
+          - POST
+        strip_path: false
+
+upstreams:
+  - name: localhost
+
+consumers:
+  - username: default-client
+    jwt_secrets:
+      - key: ${JWT_ISSUER}
+        algorithm: RS256
+        rsa_public_key: |
+${PUBLIC_KEY}

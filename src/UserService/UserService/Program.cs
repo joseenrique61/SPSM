@@ -1,7 +1,11 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using UserService.Application;
+using UserService.Application.Jwt;
 using UserService.Domain.Repositories;
+using UserService.Infrastructure;
 using UserService.Infrastructure.ApplicationDbContext;
+using UserService.Infrastructure.Jwt;
 using UserService.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +24,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
+builder.Services.AddScoped<IJwtResponseGenerator, JwtResponseGenerator>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();

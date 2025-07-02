@@ -141,7 +141,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
     build:
@@ -158,9 +157,10 @@ services:
         condition: service_healthy
       kong:
         condition: service_healthy
-
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${USERS_DB}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
     build:
       context: src/UserService
       dockerfile: UserService/Dockerfile
