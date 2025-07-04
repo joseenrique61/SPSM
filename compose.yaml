@@ -12,6 +12,7 @@ x-kong-config:
 
 volumes:
   postgres_data:
+  mongodb_data:
   rabbitmq_data:
   kong_prefix_vol:
     driver_opts:
@@ -45,6 +46,26 @@ services:
           "-U",
           "${POSTGRES_USER}"
         ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    restart: on-failure
+    stdin_open: true
+    tty: true
+
+  mongodb:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-net
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 10s
       retries: 3
@@ -164,6 +185,25 @@ services:
     build:
       context: src/UserService
       dockerfile: UserService/Dockerfile
+    networks:
+      - app-net
+    restart: on-failure:5
+
+  shopping_cart_service:
+    image: shopping_cart_service
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - MongoDb__ConnectionString=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017
+      - MongoDb__Database=${SHOPPING_CART_DB}
+    build:
+      context: src/ShoppingCartService
+      dockerfile: ShoppingCartService/Dockerfile
     networks:
       - app-net
     restart: on-failure:5
