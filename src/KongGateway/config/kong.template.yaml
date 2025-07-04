@@ -42,6 +42,42 @@ services:
         methods:
           - POST
         strip_path: false
+  - name: shopping-cart-service
+    url: http://shopping_cart_service:8080  # Internal URL of the product
+    routes:
+      - name: add-to-cart
+        paths:
+          - /shopping_cart/add_item/
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+      - name: remove-from-cart
+        paths:
+          - /shopping_cart/remove_item/
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+      - name: delete-from-cart
+        paths:
+          - /shopping_cart/delete_item/
+        methods:
+          - DELETE
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
 
 upstreams:
   - name: localhost
