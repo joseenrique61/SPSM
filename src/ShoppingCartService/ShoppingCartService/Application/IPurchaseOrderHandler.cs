@@ -6,5 +6,7 @@ public interface IPurchaseOrderHandler
 {
     public Task AddProductToCart(int userId, Product product);
     
-    public Task RemoveProductFromCart(int userId, int productId);
+    public Task<bool> RemoveProductFromCart(int userId, Product product);
+
+    public Task DeleteProductFromCart(int userId, int productId);
 }

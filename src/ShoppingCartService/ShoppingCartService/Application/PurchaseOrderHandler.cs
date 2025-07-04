@@ -7,11 +7,7 @@ public class PurchaseOrderHandler(IPurchaseOrderRepository purchaseOrderReposito
 {
     public async Task AddProductToCart(int userId, Product product)
     {
-        var purchaseOrderFromDb = await purchaseOrderRepository.GetByUserIdAsync(userId);
-        var purchaseOrder = purchaseOrderFromDb ?? new PurchaseOrder()
-        {
-            UserId = userId,
-        };
+        var purchaseOrder = await purchaseOrderRepository.GetByUserIdAsync(userId);
 
         var productInCart = purchaseOrder.Products.FirstOrDefault(p => p.Id == product.Id);
         if (productInCart != null)
@@ -23,17 +19,35 @@ public class PurchaseOrderHandler(IPurchaseOrderRepository purchaseOrderReposito
             purchaseOrder.Products.Add(product);
         }
 
-        if (purchaseOrderFromDb == null)
+        await purchaseOrderRepository.UpsertAsync(purchaseOrder);
+    }
+
+    public async Task<bool> RemoveProductFromCart(int userId, Product product)
+    {
+        var purchaseOrder = await purchaseOrderRepository.GetByUserIdAsync(userId);
+
+        var productInCart = purchaseOrder.Products.FirstOrDefault(p => p.Id == product.Id);
+        if (productInCart == null)
         {
-            await purchaseOrderRepository.CreateAsync(purchaseOrder);
+            return false;
         }
-        else
+
+        if (productInCart.Amount < product.Amount)
         {
-            await purchaseOrderRepository.UpdateAsync(purchaseOrder.Id, purchaseOrder);
+            return false;
         }
+        productInCart.Amount -= product.Amount;
+
+        if (productInCart.Amount == 0)
+        {
+            purchaseOrder.Products.Remove(productInCart);
+        }
+        
+        await purchaseOrderRepository.UpsertAsync(purchaseOrder);
+        return true;
     }
     
-    public Task RemoveProductFromCart(int userId, int productId)
+    public Task DeleteProductFromCart(int userId, int productId)
     {
         throw new NotImplementedException();
     }

@@ -8,20 +8,21 @@ public class PurchaseOrderRepository : IPurchaseOrderRepository
 {
     private readonly IMongoCollection<PurchaseOrder> _ordersCollection;
 
-    public PurchaseOrderRepository(IConfiguration mongoSettings, ILogger<PurchaseOrderRepository> logger)
+    public PurchaseOrderRepository(IConfiguration mongoSettings)
     {
-        logger.LogError(mongoSettings["MongoDb:ConnectionString"]);
-        logger.LogError(mongoSettings["MongoDb:Database"]);
-        
         var client = new MongoClient(mongoSettings["MongoDb:ConnectionString"]);
         var database = client.GetDatabase(mongoSettings["MongoDb:Database"]);
         _ordersCollection = database.GetCollection<PurchaseOrder>("PurchaseOrders");
     }
 
     // Get order by ID
-    public async Task<PurchaseOrder?> GetByUserIdAsync(int id)
+    public async Task<PurchaseOrder> GetByUserIdAsync(int id)
     {
-        return await _ordersCollection.Find(o => o.UserId == id).FirstOrDefaultAsync();
+        var purchaseOrder = await _ordersCollection.Find(o => o.UserId == id).FirstOrDefaultAsync();
+        return purchaseOrder ?? new PurchaseOrder()
+        {
+            UserId = id,
+        };
     }
 
     // Create an order
@@ -34,6 +35,18 @@ public class PurchaseOrderRepository : IPurchaseOrderRepository
     public async Task UpdateAsync(string id, PurchaseOrder order)
     {
         await _ordersCollection.ReplaceOneAsync(o => o.Id == id, order);
+    }
+
+    public async Task<bool> UpsertAsync(PurchaseOrder order)
+    {
+        if (await _ordersCollection.Find(o => o.UserId == order.UserId).FirstOrDefaultAsync() == null)
+        {
+            await CreateAsync(order);
+            return true;
+        }
+        
+        await UpdateAsync(order.Id, order);
+        return false;
     }
 
     // Delete an order
