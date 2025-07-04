@@ -8,5 +8,5 @@ public interface IPurchaseOrderHandler
     
     public Task<bool> RemoveProductFromCart(int userId, Product product);
 
-    public Task DeleteProductFromCart(int userId, int productId);
+    public Task<bool> DeleteProductFromCart(int userId, int productId);
 }

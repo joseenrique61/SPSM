@@ -71,7 +71,7 @@ services:
         paths:
           - /shopping_cart/delete_item/
         methods:
-          - POST
+          - DELETE
         strip_path: false
         plugins:
           - name: jwt

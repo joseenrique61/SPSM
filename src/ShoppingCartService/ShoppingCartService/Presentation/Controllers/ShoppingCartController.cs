@@ -30,4 +30,11 @@ public class ShoppingCartController(IPurchaseOrderHandler purchaseOrderHandler) 
         }
         return await purchaseOrderHandler.RemoveProductFromCart(userId, product) ? Ok() : BadRequest("The amount must be less than the amount in the cart.");
     }
+    
+    [HttpDelete]
+    [Route("delete_item/{userId}")]
+    public async Task<IActionResult> DeleteItem(int userId, [FromQuery] int productId)
+    { 
+        return await purchaseOrderHandler.DeleteProductFromCart(userId, productId) ? Ok() : NotFound("The product was not found in the cart.");
+    }
 }

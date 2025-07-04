@@ -47,8 +47,18 @@ public class PurchaseOrderHandler(IPurchaseOrderRepository purchaseOrderReposito
         return true;
     }
     
-    public Task DeleteProductFromCart(int userId, int productId)
+    public async Task<bool> DeleteProductFromCart(int userId, int productId)
     {
-        throw new NotImplementedException();
+        var purchaseOrder = await purchaseOrderRepository.GetByUserIdAsync(userId);
+
+        var productInCart = purchaseOrder.Products.FirstOrDefault(p => p.Id == productId);
+        if (productInCart == null)
+        {
+            return false;
+        }
+        
+        purchaseOrder.Products.Remove(productInCart);
+        await purchaseOrderRepository.UpsertAsync(purchaseOrder);
+        return true;
     }
 }
