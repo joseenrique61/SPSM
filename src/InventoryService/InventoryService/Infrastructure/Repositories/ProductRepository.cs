@@ -1,43 +1,55 @@
 ﻿using InventoryService.Domain.Models;
 using InventoryService.Domain.Repositories;
+using InventoryService.Infrastructure.ApplicationDBContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryService.Infrastructure.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        public Task<bool> DeleteProductAsync(int id)
+        private readonly IApplicationDBContext _applicationDBContext;
+        public ProductRepository(IApplicationDBContext applicationDBContext)
         {
-            throw new NotImplementedException();
+            _applicationDBContext = applicationDBContext;
         }
 
-        public Task<List<Product>?> GetAllProducts()
+        public async Task<Product> AddProductAsync(Product product)
         {
-            throw new NotImplementedException();
+            _applicationDBContext.Products.Add(product);
+            await _applicationDBContext.SaveChangesAsync();
+
+            return product;
         }
 
-        public Task<List<Product>?> GetProductByCategory(string category)
+        public async Task<bool> DeleteProductAsync(int id)
         {
-            throw new NotImplementedException();
+            var product = await _applicationDBContext.Products.FindAsync(id);
+
+            if (product == null)
+                return false;
+
+            _applicationDBContext.Products.Remove(product);
+            await _applicationDBContext.SaveChangesAsync();
+
+            return true;
         }
 
-        public Task<Product?> GetProductById(int id)
+        public async Task<Product?> UpdateProductAsync(Product product)
         {
-            throw new NotImplementedException();
-        }
+            var existingProduct = await _applicationDBContext.Products.FindAsync(product.Id);
 
-        public Task<List<Product>?> GetProductByName(string name)
-        {
-            throw new NotImplementedException();
-        }
+            if (existingProduct == null)
+                return null;
 
-        public Task<bool> SaveProductAsync(Product product)
-        {
-            throw new NotImplementedException();
-        }
+            await _applicationDBContext.Products
+                .Where(p => p.Id == existingProduct.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(p => p.Name, product.Name)
+                    .SetProperty(p => p.Description, product.Description)
+                    .SetProperty(p => p.Price, product.Price)
+                    .SetProperty(p => p.ImagePath, product.ImagePath));
 
-        public Task<bool> UpdateProductAsync(Product product)
-        {
-            throw new NotImplementedException();
+            return existingProduct;
         }
     }
 }

@@ -1,38 +1,53 @@
 ﻿using InventoryService.Domain.Models;
 using InventoryService.Domain.Repositories;
+using InventoryService.Infrastructure.ApplicationDBContext;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryService.Infrastructure.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {
-        public Task<bool> AddCategoryAsync(Category category)
+        private readonly IApplicationDBContext _applicationDBContext;
+        public CategoryRepository(IApplicationDBContext applicationDBContext) 
         {
-            throw new NotImplementedException();
+            _applicationDBContext = applicationDBContext;
         }
 
-        public Task<bool> DeleteCategoryAsync(int id)
+        public async Task<Category> AddCategoryAsync(Category category)
         {
-            throw new NotImplementedException();
+            _applicationDBContext.Categories.Add(category);
+            await _applicationDBContext.SaveChangesAsync();
+            
+            return category;
         }
 
-        public Task<List<Category>?> GetAllCategories(int id)
+        public async Task<bool> DeleteCategoryAsync(int id)
         {
-            throw new NotImplementedException();
+            var category = await _applicationDBContext.Categories.FindAsync(id);
+
+            if (category == null)
+                return false;
+
+            _applicationDBContext.Categories.Remove(category);
+            await _applicationDBContext.SaveChangesAsync();
+
+            return true;
         }
 
-        public Task<Category?> GetCategoryById(int id)
+        public async Task<Category?> UpdateCategoryAsync(Category category)
         {
-            throw new NotImplementedException();
-        }
+            var existingCategory = await _applicationDBContext.Categories.FindAsync(category.Id);
 
-        public Task<Category?> GetCategoryByName(string name)
-        {
-            throw new NotImplementedException();
-        }
+            if (existingCategory == null)
+                return null;
 
-        public Task<bool> UpdateCategoryAsync(Category category)
-        {
-            throw new NotImplementedException();
+            await _applicationDBContext.Categories
+                .Where(c => c.Id == existingCategory.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(c => c.Name, category.Name));
+
+            return existingCategory;
         }
     }
 }
