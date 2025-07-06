@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using InventoryService.Infrastructure.ApplicationDBContext;
 using InventoryService.Domain.Repositories;
 using InventoryService.Infrastructure.Repositories;
+using InventoryService.Application.Interfaces;
+using InventoryService.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,9 @@ builder.Services.AddDbContext<IApplicationDBContext, ApplicationDBContext>(optio
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 

@@ -14,12 +14,10 @@ namespace InventoryService.Infrastructure.Repositories
             _applicationDBContext = applicationDBContext;
         }
 
-        public async Task<Category> AddCategoryAsync(Category category)
+        public async Task AddCategoryAsync(Category category)
         {
             _applicationDBContext.Categories.Add(category);
             await _applicationDBContext.SaveChangesAsync();
-            
-            return category;
         }
 
         public async Task<bool> DeleteCategoryAsync(int id)
@@ -35,19 +33,30 @@ namespace InventoryService.Infrastructure.Repositories
             return true;
         }
 
-        public async Task<Category?> UpdateCategoryAsync(Category category)
+        public async Task<Category?> GetByIdAsync(int id)
         {
-            var existingCategory = await _applicationDBContext.Categories.FindAsync(category.Id);
+            return await _applicationDBContext.Categories.FindAsync(id);
+        }
+
+        public async Task<Category?> GetByNameAsync(string name)
+        {
+            return await _applicationDBContext.Categories
+                             .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
+        }
+
+        public async Task<bool> UpdateCategoryAsync(int id, Category category)
+        {
+            var existingCategory = await _applicationDBContext.Categories.FindAsync(id);
 
             if (existingCategory == null)
-                return null;
+                return false;
 
             await _applicationDBContext.Categories
-                .Where(c => c.Id == existingCategory.Id)
+                .Where(c => c.Id == id)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(c => c.Name, category.Name));
 
-            return existingCategory;
+            return true;
         }
     }
 }
