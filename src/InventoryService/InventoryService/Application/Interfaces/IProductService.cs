@@ -4,8 +4,8 @@ namespace InventoryService.Application.Interfaces
 {
     public interface IProductService
     {
-        Task<bool> SaveAsync(Product product);
-        Task<bool> UpdateAsync(Product product);
-        Task<bool> DeleteAsync(int id);
+        Task<bool> AddProductAsync(Product product);
+        Task<bool> UpdateProductAsync(int id, Product product);
+        Task<bool> DeleteProductAsync(int id);
     }
 }
