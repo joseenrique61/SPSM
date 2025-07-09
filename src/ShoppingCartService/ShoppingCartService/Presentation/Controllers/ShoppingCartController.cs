@@ -37,4 +37,12 @@ public class ShoppingCartController(IPurchaseOrderHandler purchaseOrderHandler) 
     { 
         return await purchaseOrderHandler.DeleteProductFromCart(userId, productId) ? Ok() : NotFound("The product was not found in the cart.");
     }
+
+    [HttpDelete]
+    [Route("clear_cart/{userId}")]
+    public async Task<IActionResult> ClearCart(int userId)
+    {
+        await purchaseOrderHandler.ClearCart(userId);
+        return Ok();
+    }
 }
