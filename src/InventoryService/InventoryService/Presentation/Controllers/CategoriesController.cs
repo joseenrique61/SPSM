@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InventoryService.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("inventory/category")]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

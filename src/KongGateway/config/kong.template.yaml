@@ -16,23 +16,58 @@ services:
   - name: search-service
     url: http://search_service:8080  # Internal URL of the product
     routes:
-      - name: search-by-id
+      - name: search-product-or-category
         paths:
-          - /product/id/
+          - /search/
         methods:
           - GET
-        strip_path: false
-        #plugins:
-        #  - name: jwt
-        #    config:
-        #      claims_to_verify:
-        #        - exp
+        strip_path: true
+      # - name: search-category-by-id
+      #   paths:
+      #     - /product/id/
+      #   methods:
+      #     - GET
+      #   strip_path: false
+
   - name: inventory-service
     url: http://inventory_service:8080  # Internal URL of the product
     routes:
+      - name: add-product
+        paths:
+          - /inventory/product/create/
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+         - name: jwt
+           config:
+             claims_to_verify:
+               - exp
+      - name: update-product
+        paths:
+          - /inventory/product/update/
+        methods:
+          - PUT
+        strip_path: false
+        plugins:
+         - name: jwt
+           config:
+             claims_to_verify:
+              - exp
+      - name: delete-product
+        paths:
+          - /inventory/product/delete/
+        methods:
+          - DELETE
+        strip_path: false
+        plugins:
+         - name: jwt
+           config:
+             claims_to_verify:
+              - exp
       - name: reduce-stock
         paths:
-          - /inventory/reduce/
+          - /inventory/product/reduce/
         methods:
           - PUT
         strip_path: false
@@ -41,6 +76,40 @@ services:
            config:
              claims_to_verify:
                - exp
+      - name: create-category
+        paths:
+          - /inventory/category/create/
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+         - name: jwt
+           config:
+             claims_to_verify:
+              - exp
+      - name: update-category
+        paths:
+          - /inventory/category/update/
+        methods:
+          - PUT
+        strip_path: false
+        plugins:
+         - name: jwt
+           config:
+             claims_to_verify:
+              - exp
+
+      - name: seed-data
+        paths:
+          - /seed/
+        methods:
+          - POST
+        strip_path: true
+        # plugins:
+        #  - name: jwt
+        #    config:
+        #      claims_to_verify:
+        #       - exp
   - name: user-service
     url: http://user_service:8080  # Internal URL of the product
     routes:

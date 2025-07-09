@@ -1,4 +1,5 @@
-﻿using InventoryService.Domain.Interfaces;
+﻿using System.ComponentModel;
+using InventoryService.Domain.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,8 @@ namespace InventoryService.Domain.Models
         public required int Stock { get; set; }
         public Category? Category { get; set; }
         public string? ImagePath { get; set; }
+        
+        [DefaultValue(false)]
         public bool IsDeleted { get; set; }
         public DateTimeOffset? DeletedAt { get; set; }
     }
