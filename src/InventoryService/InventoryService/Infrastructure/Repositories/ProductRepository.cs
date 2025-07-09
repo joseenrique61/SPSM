@@ -56,6 +56,7 @@ namespace InventoryService.Infrastructure.Repositories
                     .SetProperty(p => p.Name, product.Name)
                     .SetProperty(p => p.Description, product.Description)
                     .SetProperty(p => p.Price, product.Price)
+                    .SetProperty(p => p.Stock, product.Stock)
                     .SetProperty(p => p.CategoryId, product.CategoryId)
                     .SetProperty(p => p.ImagePath, product.ImagePath));
 

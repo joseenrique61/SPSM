@@ -35,7 +35,7 @@ namespace InventoryService.Presentation.Controllers
             if (!status)
                 return NotFound($"Product with ID: {id} not found.");
 
-            return Ok(status);
+            return NoContent();
         }
 
         [HttpPut]
@@ -47,7 +47,19 @@ namespace InventoryService.Presentation.Controllers
             if (!status)
                 return NotFound($"Product with ID: {id} not found.");
 
-            return Ok(status);
+            return NoContent();
+        }
+
+        [HttpPut]
+        [Route("reduce/{id}")]
+        public async Task<ActionResult> ReduceStock(int id, [FromQuery] int amount)
+        {
+            var status = await _productService.ReduceStockAsync(id, amount);
+
+            if (!status)
+                return NotFound($"Product with ID: {id} not found.");
+
+            return NoContent();
         }
     }
 }
