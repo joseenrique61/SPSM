@@ -9,7 +9,7 @@ namespace InventoryService.Application.Services
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly ILogger _logger;
-        public CategoryService(ICategoryRepository categoryRepository, ILogger logger)
+        public CategoryService(ICategoryRepository categoryRepository, ILogger<CategoryService> logger)
         {
             _categoryRepository = categoryRepository;
             _logger = logger;
@@ -23,11 +23,11 @@ namespace InventoryService.Application.Services
 
                 if (!success)
                 {
-                    _logger.LogInformation($"Category with ID: {id} cannot be deleted. Verify the ID"); 
+                    _logger.LogInformation($"Category with ID: {id} cannot be deleted. Verify the ID");
                     return false;
                 }
-                
-                _logger.LogInformation($"Category with ID: {id} deleted sucessfully."); 
+
+                _logger.LogInformation($"Category with ID: {id} deleted sucessfully.");
                 return true;
             }
             catch (Exception ex)
@@ -50,12 +50,13 @@ namespace InventoryService.Application.Services
                 }
 
                 // Mapping Category from DTO
-                var category = new Category { 
+                var category = new Category
+                {
                     Name = categoryDTO.Name
                 };
 
                 await _categoryRepository.AddCategoryAsync(category);
-                
+
                 _logger.LogInformation($"Category with ID: {category.Id} created sucessfully.");
                 return true;
             }
@@ -100,4 +101,5 @@ namespace InventoryService.Application.Services
                 return false;
             }
         }
+    }
 }

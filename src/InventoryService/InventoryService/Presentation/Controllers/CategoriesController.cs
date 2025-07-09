@@ -1,7 +1,5 @@
 ﻿using InventoryService.Application.DTOs;
 using InventoryService.Application.Interfaces;
-using InventoryService.Application.Services;
-using InventoryService.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryService.Presentation.Controllers
@@ -11,7 +9,6 @@ namespace InventoryService.Presentation.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
-
         public CategoriesController(ICategoryService categoryService)
         {
             _categoryService = categoryService;

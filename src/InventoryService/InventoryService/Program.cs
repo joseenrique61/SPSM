@@ -1,10 +1,11 @@
-using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore;
-using InventoryService.Infrastructure.ApplicationDBContext;
-using InventoryService.Domain.Repositories;
-using InventoryService.Infrastructure.Repositories;
 using InventoryService.Application.Interfaces;
 using InventoryService.Application.Services;
+using InventoryService.Domain.Repositories;
+using InventoryService.Infrastructure.ApplicationDBContext;
+using InventoryService.Infrastructure.Interceptors;
+using InventoryService.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,14 +20,16 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<SoftDeleteInterceptor>();
 builder.Services.AddDbContext<IApplicationDBContext, ApplicationDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<ProductService>();
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 

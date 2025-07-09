@@ -37,6 +37,12 @@ namespace InventoryService.Infrastructure.Repositories
             return await _applicationDBContext.Products.FindAsync(id);
         }
 
+        public async Task<Product?> GetByNameAsync(string name)
+        {
+            return await _applicationDBContext.Products
+                             .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
+        }
+
         public async Task<bool> UpdateProductAsync(int id, Product product)
         {
             var existingProduct = await _applicationDBContext.Products.FindAsync(id);
@@ -50,6 +56,7 @@ namespace InventoryService.Infrastructure.Repositories
                     .SetProperty(p => p.Name, product.Name)
                     .SetProperty(p => p.Description, product.Description)
                     .SetProperty(p => p.Price, product.Price)
+                    .SetProperty(p => p.CategoryId, product.CategoryId)
                     .SetProperty(p => p.ImagePath, product.ImagePath));
 
             return true;
