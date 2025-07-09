@@ -6,7 +6,7 @@ namespace InventoryService.Application.Interfaces
     {
         Task<bool> AddProductAsync(ProductDTO productDTO);
         Task<bool> UpdateProductAsync(int id, ProductDTO productDTO);
-        Task<bool> ReduceStockAsync(int id, int quantity);
+        Task<bool> ReduceStockAsync(List<ReduceDTO> reduceDTOs);
         Task<bool> DeleteProductAsync(int id);
     }
 }

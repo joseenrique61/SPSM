@@ -111,35 +111,46 @@ namespace InventoryService.Application.Services
             }
         }
 
-        public async Task<bool> ReduceStockAsync(int id, int amount)
+        public async Task<bool> ReduceStockAsync(List<ReduceDTO> reduceDTOs)
         {
             try
             {
-                var product = await _productRepository.GetByIdAsync(id);
+                List<Product> products = [];
 
-                if (product == null)
+                foreach (ReduceDTO reduceDTO in reduceDTOs)
                 {
-                    _logger.LogInformation($"Product with ID: {id} cannot be reduced. Verify the ID");
-                    return false;
+                    var product = await _productRepository.GetByIdAsync(reduceDTO.Id);
+                    
+                    if (product == null)
+                    {
+                        _logger.LogInformation($"Product with ID: {reduceDTO.Id} cannot be reduced. Verify the ID");
+                        return false;
+                    }
+
+                    if (product.Stock < reduceDTO.Amount)
+                    {
+                        _logger.LogInformation($"Product with ID: {reduceDTO.Id} cannot be reduced. Not Enough Stock");
+                        return false;
+                    } 
+
+                    product.Stock -= reduceDTO.Amount;
+
+                    products.Add(product);
                 }
 
-                if (product.Stock < amount)
+                foreach (Product product in products)
                 {
-                    _logger.LogInformation($"Product with ID: {id} cannot be reduced. Not Enough Stock");
-                    return false;
+                    var success = await _productRepository.UpdateProductAsync(product.Id, product);
+
+                    if (!success)
+                    {
+                        _logger.LogInformation($"Product with ID: {product.Id} cannot be reduced. Verify the ID");
+                        return false;
+                    }
+
+                    _logger.LogInformation($"Product with ID: {product.Id} reduced sucessfully.");
                 }
 
-                product.Stock -= amount;
-
-                var success = await _productRepository.UpdateProductAsync(id, product);
-
-                if (!success)
-                {
-                    _logger.LogInformation($"Product with ID: {id} cannot be reduced. Verify the ID");
-                    return false;
-                }
-
-                _logger.LogInformation($"Product with ID: {id} reduced sucessfully.");
                 return true;
             }
             catch (Exception ex)
