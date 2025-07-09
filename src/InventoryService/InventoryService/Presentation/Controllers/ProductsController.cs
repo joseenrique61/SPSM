@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InventoryService.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("inventory/product")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;

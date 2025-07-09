@@ -1,26 +1,15 @@
-﻿using DataSeeder.ApplicationDbContext;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-var builder = new HostApplicationBuilder(args);
+var builder = new HostApplicationBuilder();
 
-// builder.Services.AddDbContext<InventoryApplicationDbContext>(opt =>
-// {
-//     opt.UseNpgsql(builder.Configuration.GetConnectionString("InventoryConnection"));
-// });
-builder.Services.AddDbContext<SearchApplicationDbContext>(opt =>
-{
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("SearchConnection"));
-});
+builder.Services.AddScoped<DataSeeder.DataSeeder>();
 
 var app = builder.Build();
 
-using var scope = app.Services.CreateScope();
+using (var scope = app.Services.CreateScope())
+{
+    await scope.ServiceProvider.GetRequiredService<DataSeeder.DataSeeder>().SeedProducts();
+}
 
-// var inventoryDbContext = scope.ServiceProvider.GetRequiredService<InventoryApplicationDbContext>();
-// DataSeeder.DataSeeder.SeedProducts(inventoryDbContext);
-
-var searchDbContext = scope.ServiceProvider.GetRequiredService<SearchApplicationDbContext>();
-DataSeeder.DataSeeder.SeedProducts(searchDbContext);
+// app.Run();

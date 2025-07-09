@@ -61,4 +61,11 @@ public class PurchaseOrderHandler(IPurchaseOrderRepository purchaseOrderReposito
         await purchaseOrderRepository.UpsertAsync(purchaseOrder);
         return true;
     }
+
+    public async Task ClearCart(int userId)
+    {
+        var purchaseOrder = await purchaseOrderRepository.GetByUserIdAsync(userId);
+        purchaseOrder.Products.Clear();
+        await purchaseOrderRepository.UpsertAsync(purchaseOrder);
+    }
 }
