@@ -1,11 +1,16 @@
-using DataSeeder.ApplicationDbContext;
+using System.Net.Http.Json;
 using DataSeeder.Models.Common;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace DataSeeder;
 
-public static class DataSeeder
+public class DataSeeder(ILogger<DataSeeder> logger)
 {
+    private readonly HttpClient _client = new()
+    {
+        BaseAddress = new Uri("http://kong:8000")
+    };
+    
     private static List<Category> GetCategories()
     {
         return
@@ -28,6 +33,7 @@ public static class DataSeeder
                 Description = "Bujía de alto rendimiento para encendido óptimo. Compatible con múltiples modelos.",
                 Price = 12.50,
                 CategoryId = 1,
+                Stock = 100,
                 ImagePath = "images/bujia_ngk_bkr6eix.jpg"
             },
             new Product
@@ -37,6 +43,7 @@ public static class DataSeeder
                     "Kit completo de correa de distribución con bomba de agua. Esencial para mantenimiento preventivo.",
                 Price = 185.75,
                 CategoryId = 1,
+                Stock = 100,
                 ImagePath = "images/kit_distribucion_gates.jpg"
             },
             new Product
@@ -46,6 +53,7 @@ public static class DataSeeder
                     "Juego de pastillas de freno cerámicas para eje delantero. Alto rendimiento y baja sonoridad.",
                 Price = 75.90,
                 CategoryId = 2,
+                Stock = 100,
                 ImagePath = "images/pastillas_freno_brembo.jpg"
             },
             new Product
@@ -54,6 +62,7 @@ public static class DataSeeder
                 Description = "Disco de freno ventilado para eje delantero. Calidad OEM para seguridad y durabilidad.",
                 Price = 55.00,
                 CategoryId = 2,
+                Stock = 100,
                 ImagePath = "images/disco_freno_bosch.jpg"
             },
             new Product
@@ -63,6 +72,7 @@ public static class DataSeeder
                     "Amortiguador de gas para eje delantero (lado específico). Restaura el confort y manejo original.",
                 Price = 92.30,
                 CategoryId = 3,
+                Stock = 100,
                 ImagePath = "images/amortiguador_kyb.jpg"
             },
             new Product
@@ -72,6 +82,7 @@ public static class DataSeeder
                     "Rótula de suspensión para brazo inferior. Componente clave para la estabilidad y dirección.",
                 Price = 28.50,
                 CategoryId = 3,
+                Stock = 100,
                 ImagePath = "images/rotula_suspension_moog.jpg"
             },
             new Product
@@ -80,6 +91,7 @@ public static class DataSeeder
                 Description = "Batería de arranque de 12V, 60Ah y 540A de CCA. Fiabilidad para todo tipo de vehículos.",
                 Price = 110.00,
                 CategoryId = 4,
+                Stock = 100,
                 ImagePath = "images/bateria_varta_d24.jpg"
             },
             new Product
@@ -89,6 +101,7 @@ public static class DataSeeder
                     "Alternador remanufacturado de alta calidad, 120 Amperios. Garantiza la carga del sistema.",
                 Price = 215.40,
                 CategoryId = 4,
+                Stock = 100,
                 ImagePath = "images/alternador_denso.jpg"
             },
             new Product
@@ -97,6 +110,7 @@ public static class DataSeeder
                 Description = "Filtro de aceite ecológico tipo cartucho. Protege el motor de impurezas.",
                 Price = 9.80,
                 CategoryId = 5,
+                Stock = 100,
                 ImagePath = "images/filtro_aceite_mann.jpg"
             },
             new Product
@@ -105,22 +119,47 @@ public static class DataSeeder
                 Description = "Garrafa de 5 litros de aceite de motor totalmente sintético. Protección avanzada.",
                 Price = 48.99,
                 CategoryId = 5,
+                Stock = 100,
                 ImagePath = "images/aceite_castrol_5w30.jpg"
             }
         ];
     }
 
-    public static void SeedProducts(IProductDbContext dbContext)
+    public async Task SeedProducts()
     {
-        if (dbContext.Categories.Any())
+        if ((await _client.GetFromJsonAsync<List<Product>>("search/product/all"))!.Count > 0)
         {
+            logger.LogInformation("Products already seeded.");
             return;
         }
+        
+        var categories = GetCategories();
+        var products = GetProducts();
 
-        dbContext.Categories.AddRange(GetCategories());
-         ((DbContext)dbContext).SaveChanges();
+        foreach (var category in categories)
+        {
+            var response = await _client.PostAsJsonAsync("seed/inventory/category/create", category);
+            if (response.IsSuccessStatusCode)
+            {
+                logger.LogInformation("Category created: {CategoryName}", category.Name);
+            }
+            else
+            {
+                logger.LogError("Error creating category: {CategoryName}", category.Name);
+            }
+        }
 
-        dbContext.Products.AddRange(GetProducts());
-        ((DbContext)dbContext).SaveChanges();
+        foreach (var product in products)
+        {
+            var response = await _client.PostAsJsonAsync("seed/inventory/product/create", product);
+            if (response.IsSuccessStatusCode)
+            {
+                logger.LogInformation("Product created: {ProductName}", product.Name);
+            }
+            else
+            {
+                logger.LogError("Error creating product: {ProductName}", product.Name);
+            }
+        }
     }
 }
