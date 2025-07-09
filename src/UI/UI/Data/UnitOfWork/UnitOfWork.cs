@@ -1,9 +1,9 @@
-using SparePartsStoreWeb.Data.Repositories.SparePartRepository;
 using SparePartsStoreWeb.Data.Repositories.CategoryRepository;
-using SparePartsStoreWeb.Data.Repositories.ClientRepository;
-using SparePartsStoreWeb.Data.Repositories.PurchaseOrderRepository;
+using UI.Data.Repositories.ClientRepository;
+using UI.Data.Repositories.PurchaseOrderRepository;
+using UI.Data.Repositories.SparePartRepository;
 
-namespace SparePartsStoreWeb.Data.UnitOfWork
+namespace UI.Data.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
 	{

@@ -19,4 +19,185 @@ html {
 
 body {
   margin-bottom: 60px;
+  --bs-body-color: black;
+  --bs-border-color: #ACACAC;
 }
+
+.nanum-gothic-regular {
+    font-family: "Nanum Gothic", sans-serif;
+    font-size: 25px;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.nanum-gothic-regular-20px {
+    font-family: "Nanum Gothic", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.btnDetails {
+    background-color: #000000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease;
+
+}
+
+    .btnDetails:hover {
+        background-color: #4E4E4E;
+    }
+
+.content {
+    margin-top: 75px;
+    position: relative;
+    align-items: center;
+}
+
+img {
+    width: 100%;
+}
+
+.carousel-image {
+    height: 100%;
+    object-fit: fill;
+}
+
+.carousel-inner, .carousel-item {
+    height: 100%;
+}
+
+.carousel-inner {
+    border-radius: 10px;
+}
+
+.carousel-caption {
+    right: 0;
+    left: 0;
+    background-color: black;
+    opacity: 90%;
+    border-radius: 1px;
+    box-shadow: 0px 0px 10px 20px black;
+}
+
+.carousel-caption h5 {
+    color: white;
+}
+
+.carousel-caption p {
+    color: white;
+    margin-bottom: 0;
+}
+
+.logo-image {
+    width:30px;
+    height:30px;
+}
+
+.image-spareparts {
+    height: 150px;
+    object-fit: cover;
+}
+
+/* Ia help with this css */
+.login {
+    margin-top: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.content-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; 
+}
+
+.contentcreateaccount {
+    margin-top: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+/* Ia */
+.whatsapp-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+    transition: transform 0.3s ease;
+}
+
+    .whatsapp-button:hover {
+        transform: scale(1.1);
+    }
+
+    .whatsapp-button img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+
+/*.product-card {
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 400px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.product-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.product-title {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+}
+
+.product-info {
+    margin-top: 8px;
+    color: #666;
+    font-size: 14px;
+}*/
+
+.info-line {
+    margin: 4px 0;
+}
+
+.info-label {
+    font-weight: normal;
+}
+
+.info-value {
+    margin-left: 4px;
+}
+
+.delete-button {
+    background-color: #f03e3e;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+    .delete-button:hover {
+        background-color: #e03131;
+    }

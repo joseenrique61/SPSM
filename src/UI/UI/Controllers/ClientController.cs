@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using SparePartsStoreWeb.Data.UnitOfWork;
-using SPSModels.Models;
+using UI.Data.UnitOfWork;
+using UI.Models;
 
-namespace SparePartsStoreWeb.Controllers
+namespace UI.Controllers
 {
 	public class ClientController : BaseController
 	{
