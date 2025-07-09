@@ -1,6 +1,6 @@
-using SPSModels.Models;
+using UI.Models;
 
-namespace SparePartsStoreWeb.Data.Repositories.PurchaseOrderRepository
+namespace UI.Data.Repositories.PurchaseOrderRepository
 {
 	public interface IPurchaseOrderRepository
 	{

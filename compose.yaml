@@ -154,6 +154,25 @@ services:
       - app-net
     restart: on-failure:5
 
+  ui_service:
+    image: ui_service
+    depends_on:
+      - user_service
+      - payment_service
+      - shopping_cart_service
+      - inventory_service
+      - search_service
+      - kong
+    # environment:
+    #   - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+    build:
+      context: src/UI
+      dockerfile: UI/Dockerfile
+    ports:
+      - 8080:8080
+    network_mode: host
+    restart: on-failure:5
+
   search_service:
     image: search_service
     depends_on:

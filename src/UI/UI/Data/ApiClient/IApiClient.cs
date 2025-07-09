@@ -1,4 +1,4 @@
-namespace SparePartsStoreWeb.Data.ApiClient
+namespace UI.Data.ApiClient
 {
 	public interface IApiClient
 	{

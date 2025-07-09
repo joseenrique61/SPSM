@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using SparePartsStoreWeb.Data.UnitOfWork;
-using SparePartsStoreWeb.Utilities;
-using SPSModels.Models;
+using UI.Data.UnitOfWork;
+using UI.Models;
+using UI.Utilities;
 
-namespace SparePartsStoreWeb.Controllers
+namespace UI.Controllers
 {
 	public class SparePartController : BaseController
 	{
