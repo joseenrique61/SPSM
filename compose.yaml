@@ -225,3 +225,21 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+
+  payment_service:
+    image: payment_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${PAYMENT_DB}
+    build:
+      context: src/PaymentService
+      dockerfile: PaymentService/Dockerfile
+    networks:
+      - app-net
+    restart: on-failure:5
