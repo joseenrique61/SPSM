@@ -1,0 +1,39 @@
+@model Category
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="content">
+    <h1>Add New Category</h1>
+
+    <h4>Category</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+				<div class="form-group row mb-3">
+					<label asp-for="Name" class="control-label col-2 col-form-label"></label>
+					<div class="col-10">
+						<input asp-for="Name" class="form-control" />
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
+				</div>
+
+				<div class="row justify-content-center mt-5">
+					<div class="form-group row col-auto">
+						<a asp-action="Index" class="btn btn-secondary col-auto me-2"><i class="bi bi-box-arrow-left"></i> Back</a>
+						<button type="submit" class="btn btn-success col-auto"><i class="bi bi-plus-square"></i> Create</button>
+					</div>
+				</div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
