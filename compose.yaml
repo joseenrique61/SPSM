@@ -72,6 +72,7 @@ services:
     restart: on-failure
     stdin_open: true
     tty: true
+    attach: false
 
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
