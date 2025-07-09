@@ -59,7 +59,7 @@ void ConfigureHttpClients()
     .AddHttpMessageHandler<AuthenticationPropagationHandler>();
     builder.Services.AddHttpClient<IInventoryClient, InventoryClient>(client =>
         {
-            client.BaseAddress = new Uri(baseAddress + "inventory/");
+            client.BaseAddress = new Uri(baseAddress + "inventory/product/");
         })
         .AddHttpMessageHandler<AuthenticationPropagationHandler>();
 }
