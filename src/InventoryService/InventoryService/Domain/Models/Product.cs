@@ -20,6 +20,7 @@ namespace InventoryService.Domain.Models
         public required int CategoryId { get; set; }
         [Required]
         public required double Price { get; set; }
+        public required int Stock { get; set; }
         public Category? Category { get; set; }
         public string? ImagePath { get; set; }
         public bool IsDeleted { get; set; }

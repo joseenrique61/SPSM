@@ -23,20 +23,20 @@ namespace InventoryService.Presentation.Controllers
             if (!status)
                 return BadRequest();
 
-            return Ok(status);
+            return NoContent();
         }
 
-        [HttpDelete]
-        [Route("delete/{id}")]
-        public async Task<ActionResult> DeleteCategory(int id)
-        {
-            var status = await _categoryService.DeleteCategoryAsync(id);
+        //[HttpDelete]
+        //[Route("delete/{id}")]
+        //public async Task<ActionResult> DeleteCategory(int id)
+        //{
+        //    var status = await _categoryService.DeleteCategoryAsync(id);
 
-            if (!status)
-                return NotFound($"Category with ID: {id} not found.");
+        //    if (!status)
+        //        return NotFound($"Category with ID: {id} not found.");
 
-            return Ok(status);
-        }
+        //    return NoContent();
+        //}
 
         [HttpPut]
         [Route("update/{id}")]
@@ -47,7 +47,7 @@ namespace InventoryService.Presentation.Controllers
             if (!status)
                 return NotFound($"Category with ID: {id} not found.");
 
-            return Ok(status);
+            return NoContent();
         }
     }
 }
