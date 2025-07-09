@@ -51,13 +51,13 @@ namespace InventoryService.Presentation.Controllers
         }
 
         [HttpPut]
-        [Route("reduce/{id}")]
-        public async Task<ActionResult> ReduceStock(int id, [FromQuery] int amount)
+        [Route("reduce")]
+        public async Task<ActionResult> ReduceStock([FromBody] List<ReduceDTO> reduceDTOs)
         {
-            var status = await _productService.ReduceStockAsync(id, amount);
+            var status = await _productService.ReduceStockAsync(reduceDTOs);
 
             if (!status)
-                return NotFound($"Product with ID: {id} not found.");
+                return BadRequest();
 
             return NoContent();
         }
