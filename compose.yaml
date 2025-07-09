@@ -207,3 +207,21 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+
+  inventory_service:
+    image: inventory_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${INVENTORY_DB}
+    build:
+      context: src/InventoryService
+      dockerfile: InventoryService/Dockerfile
+    networks:
+      - app-net
+    restart: on-failure:5

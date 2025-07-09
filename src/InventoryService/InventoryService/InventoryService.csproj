@@ -8,13 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Application\DTOs\**" />
-      <Content Remove="Application\DTOs\**" />
-      <EmbeddedResource Remove="Application\DTOs\**" />
-      <None Remove="Application\DTOs\**" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
