@@ -39,62 +39,31 @@
             "auto_delete": false,
             "internal": false,
             "arguments": {}
-        },
-        {
-            "name": "orders.exchange",
-            "vhost": "dev",
-            "type": "topic",
-            "durable": true,
-            "auto_delete": false,
-            "internal": false,
-            "arguments": {}
         }
     ],
     "queues": [
         {
-            "name": "payment.initiate-payment",
+            "name": "notification.alerts",
             "vhost": "dev",
             "durable": true,
             "auto_delete": false,
             "arguments": {}
         },
         {
-            "name": "search.update-stock",
-            "vhost": "dev",
-            "durable": true,
-            "auto_delete": false,
-            "arguments": {}
-        },
-        {
-            "name": "notification.send-notification",
-            "vhost": "dev",
-            "durable": true,
-            "auto_delete": false,
-            "arguments": {}
-        },
-        {
-            "name": "inventory.decrease-stock",
+            "name": "inventory.changes",
             "vhost": "dev",
             "durable": true,
             "auto_delete": false,
             "arguments": {}
         }
     ],
-    "bindings": [
-        {
-            "source": "orders.exchange",
-            "vhost": "dev",
-            "destination": "payment.initiate-payment",
-            "destination_type": "queue",
-            "routing_key": "orders.created",
-            "arguments": {}
-        },
+    "bindings": [        
         {
             "source": "inventory.exchange",
             "vhost": "dev",
-            "destination": "search.update-stock",
+            "destination": "inventory.changes",
             "destination_type": "queue",
-            "routing_key": "inventory.updated",
+            "routing_key": "inventory.*.*",
             "arguments": {}
         },
         {
@@ -102,16 +71,8 @@
             "vhost": "dev",
             "destination": "notification.send-notification",
             "destination_type": "queue",
-            "routing_key": "payment.#",
+            "routing_key": "*.payment.confirmed",
             "arguments": {}
-        },
-        {
-            "source": "payment.exchange",
-            "vhost": "dev",
-            "destination": "inventory.decrease-stock",
-            "destination_type": "queue",
-            "routing_key": "payment.confirm-order-purchased",
-            "arguments": {}
-        }
+        } 
     ]
 }
