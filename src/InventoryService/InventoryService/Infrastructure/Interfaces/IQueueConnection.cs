@@ -4,8 +4,6 @@ namespace InventoryService.Infrastructure.Interfaces
 {
     public interface IQueueConnection
     {
-        public Task InitializeAsync();
-
-        public IChannel? Channel { get; }
+        Task<IChannel> CreateChannelAsync();
     }
 }

@@ -69,9 +69,9 @@
         {
             "source": "payment.exchange",
             "vhost": "dev",
-            "destination": "notification.send-notification",
+            "destination": "notification.alerts",
             "destination_type": "queue",
-            "routing_key": "*.payment.confirmed",
+            "routing_key": "notification.*.*",
             "arguments": {}
         } 
     ]

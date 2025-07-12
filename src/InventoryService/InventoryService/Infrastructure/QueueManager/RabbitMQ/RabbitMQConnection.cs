@@ -1,31 +1,81 @@
 ﻿using InventoryService.Infrastructure.Interfaces;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 
 namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
 {
-    public class RabbitMQConnection(IOptions<RabbitMQConfiguration> options) : IQueueConnection
+    public class RabbitMQConnection : IQueueConnection
     {
-        private readonly RabbitMQConfiguration _configuration = options.Value;
-        public IChannel? Channel { get; private set; }
+        private readonly IConnectionFactory _connectionFactory;
+        private static readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1); 
+        private readonly ILogger<RabbitMQConnection> _logger;
 
-        public async Task InitializeAsync()
+        private IConnection? _connection;
+
+        public RabbitMQConnection(IOptions<RabbitMQConfiguration> options, ILogger<RabbitMQConnection> logger)
         {
-            await CreateConnection();
+            _logger = logger;
+            var config = options.Value;
+
+            _connectionFactory = new ConnectionFactory()
+            {
+                HostName = config.HostName,
+                Port = config.Port,
+                VirtualHost = config.VirtualHost,
+                UserName = config.Username,
+                Password = config.Password 
+            };
         }
 
-        private async Task CreateConnection()
+        public bool IsConnected => _connection != null && _connection.IsOpen;
+
+        private async Task TryConnectAsync(CancellationToken cancellationToken = default)
         {
-            var factory = new ConnectionFactory()
+            if (IsConnected) return;
+
+            _logger.LogInformation("Intentando establecer conexión con RabbitMQ...");
+
+            await _connectionLock.WaitAsync(cancellationToken);
+            try
             {
-                HostName = _configuration.HostName,
-                Port = _configuration.Port,
-                VirtualHost = _configuration.VirtualHost,
-                UserName = _configuration.Username,
-                Password = _configuration.Password
-            };
-            var connection = await factory.CreateConnectionAsync();
-            Channel = await connection.CreateChannelAsync();
+                if (IsConnected) return;
+
+                _connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+
+                _logger.LogInformation("Conexión a RabbitMQ establecida exitosamente.");
+            }
+            catch (BrokerUnreachableException ex)
+            {
+                _logger.LogCritical(ex, "No se pudo conectar a RabbitMQ. El host es inalcanzable.");
+                throw;
+            }
+            finally
+            {
+                _connectionLock.Release();
+            }
+        }
+
+        public async Task<IChannel> CreateChannelAsync()
+        {
+            if (!IsConnected)
+            {
+                await TryConnectAsync();
+            }
+
+            return await _connection!.CreateChannelAsync();
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                _connection?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Error al cerrar la conexión de RabbitMQ.");
+            }
         }
     }
 }
