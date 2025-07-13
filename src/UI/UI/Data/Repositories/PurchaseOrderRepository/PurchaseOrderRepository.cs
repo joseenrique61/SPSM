@@ -3,18 +3,11 @@ using UI.Models;
 
 namespace UI.Data.Repositories.PurchaseOrderRepository
 {
-	public class PurchaseOrderRepository : IPurchaseOrderRepository
+	public class PurchaseOrderRepository(IApiClient client) : IPurchaseOrderRepository
 	{
-		private readonly IApiClient _client;
-
-        public PurchaseOrderRepository(IApiClient client)
-        {
-            _client = client;
-        }
-
-        public async Task<List<PurchaseOrder>?> GetAll()
+		public async Task<List<PurchaseOrder>?> GetAll()
 		{
-			HttpResponseMessage response = await _client.Get<PurchaseOrder>("all");
+			HttpResponseMessage response = await client.Get("shopping_cart/all");
 			if (response.IsSuccessStatusCode)
 			{
 				return await response.Content.ReadFromJsonAsync<List<PurchaseOrder>>();
@@ -24,7 +17,7 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 
 		public async Task<List<PurchaseOrder>?> GetByClientId(int id)
 		{
-			HttpResponseMessage response = await _client.Get<PurchaseOrder>($"byClientId/{id}");
+			HttpResponseMessage response = await client.Get($"shopping_cart/userId/{id}");
 			if (response.IsSuccessStatusCode)
 			{
 				return await response.Content.ReadFromJsonAsync<List<PurchaseOrder>>();
@@ -34,7 +27,7 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 
 		public async Task<PurchaseOrder?> GetById(int id)
 		{
-			HttpResponseMessage response = await _client.Get<PurchaseOrder>($"byId/{id}");
+			HttpResponseMessage response = await client.Get($"shopping_cart/id/{id}");
 			if (response.IsSuccessStatusCode)
 			{
 				return await response.Content.ReadFromJsonAsync<PurchaseOrder>();
@@ -44,19 +37,19 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 
 		public async Task<PurchaseOrder> GetCurrentByClientId(int id)
 		{
-			HttpResponseMessage response = await _client.Get<PurchaseOrder>($"current/{id}");
+			HttpResponseMessage response = await client.Get($"current/{id}");
 			return (await response.Content.ReadFromJsonAsync<PurchaseOrder>())!;
 		}
 
 		public async Task<bool> Create(PurchaseOrder purchaseOrder)
 		{
-			HttpResponseMessage response = await _client.Post("create", purchaseOrder);
+			HttpResponseMessage response = await client.Post("create", purchaseOrder);
 			return response.IsSuccessStatusCode;
 		}
 
 		public async Task<bool> Update(PurchaseOrder purchaseOrder)
 		{
-			HttpResponseMessage response = await _client.Put("update", purchaseOrder);
+			HttpResponseMessage response = await client.Put("update", purchaseOrder);
 			return response.IsSuccessStatusCode;
 		}
 	}

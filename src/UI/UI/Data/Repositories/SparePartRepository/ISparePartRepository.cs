@@ -4,7 +4,7 @@ namespace UI.Data.Repositories.SparePartRepository
 {
     public interface ISparePartRepository
     {
-        public Task<List<SparePart>?> GetAll();
+        public Task<List<SparePart>> GetAll();
 
         public Task<SparePart?> GetById(int id);
 

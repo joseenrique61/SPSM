@@ -6,36 +6,27 @@ using UI.Utilities;
 
 namespace UI.Controllers
 {
-	public class SparePartController : BaseController
+	public class SparePartController(
+		IUnitOfWork unitOfWork,
+		IAuthenticator authenticator,
+		IWebHostEnvironment webHostEnvironment)
+		: BaseController
 	{
-		private readonly IUnitOfWork _unitOfWork;
-
-		private readonly IAuthenticator _authenticator;
-
-		private readonly IWebHostEnvironment _webHostEnvironment;
-
-		public SparePartController(IUnitOfWork unitOfWork, IAuthenticator authenticator, IWebHostEnvironment webHostEnvironment)
-		{
-			_unitOfWork = unitOfWork;
-			_authenticator = authenticator;
-			_webHostEnvironment = webHostEnvironment;
-		}
-
 		public async Task<IActionResult> Index()
 		{
-			if (!_authenticator.Authenticate(UserTypes.Admin))
+			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
 				return RedirectToAction("Login", "Client");
 			}
 
-			ViewBag.CategoryId = await _unitOfWork.Category.GetAll();
-			return View(await _unitOfWork.SparePart.GetAll());
+			ViewBag.CategoryId = await unitOfWork.Category.GetAll();
+			return View(await unitOfWork.SparePart.GetAll());
 		}
 
 		public async Task<IActionResult> Details(int id)
 		{
-			var sparePart = await _unitOfWork.SparePart
-					.GetById(id);
+			var sparePart = await unitOfWork.SparePart
+				.GetById(id);
 			if (sparePart == null)
 			{
 				return NotFound();
@@ -43,9 +34,11 @@ namespace UI.Controllers
 
 			if (HttpContext.Session.GetString("Role") == UserTypes.Client)
 			{
-				PurchaseOrder purchaseOrder = await _unitOfWork.PurchaseOrder.GetCurrentByClientId((int)HttpContext.Session.GetInt32("ClientId")!);
+				PurchaseOrder purchaseOrder =
+					await unitOfWork.PurchaseOrder.GetCurrentByClientId(
+						(int)HttpContext.Session.GetInt32("ClientId")!);
 				Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == id);
-				ViewBag.AmountOnCart = order == null ? 0 : order.Amount;
+				ViewBag.AmountOnCart = order?.Amount ?? 0;
 			}
 
 			return View(sparePart);
@@ -53,20 +46,20 @@ namespace UI.Controllers
 
 		public async Task<IActionResult> DetailsList(string name)
 		{
-			ViewBag.CategoryId = await _unitOfWork.Category.GetAll();
-			IEnumerable<SparePart>? spareParts = (await _unitOfWork.SparePart.GetAll())?
+			ViewBag.CategoryId = await unitOfWork.Category.GetAll();
+			IEnumerable<SparePart>? spareParts = (await unitOfWork.SparePart.GetAll())?
 				.Where(sp => sp.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase));
 			return spareParts == null ? NotFound() : View(spareParts);
 		}
 
 		public async Task<IActionResult> AddToCart(int amount, SparePart sparePart)
 		{
-			if (!_authenticator.Authenticate(UserTypes.Client))
+			if (!authenticator.Authenticate(UserTypes.Client))
 			{
 				return RedirectToAction("Login", "Client");
 			}
-			
-			sparePart = (await _unitOfWork.SparePart.GetById(sparePart.Id))!;
+
+			sparePart = (await unitOfWork.SparePart.GetById(sparePart.Id))!;
 
 			if (amount > sparePart.Stock || amount <= 0)
 			{
@@ -80,7 +73,7 @@ namespace UI.Controllers
 				return RedirectToAction("Login", "Client");
 			}
 
-			PurchaseOrder purchaseOrder = await _unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
+			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
 			Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePart.Id);
 			if (order == null)
 			{
@@ -97,47 +90,49 @@ namespace UI.Controllers
 					TempData["Error"] = "Invalid amount.";
 					return RedirectToAction(nameof(Details), new { id = sparePart.Id });
 				}
+
 				order.Amount += amount;
 			}
 
 			purchaseOrder.Client = null;
-			await _unitOfWork.PurchaseOrder.Update(purchaseOrder);
+			await unitOfWork.PurchaseOrder.Update(purchaseOrder);
 
 			return RedirectToAction("CartInfo", "PurchaseOrder");
 		}
 
 		public async Task<IActionResult> Create()
 		{
-			if (!_authenticator.Authenticate(UserTypes.Admin))
+			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
 				return RedirectToAction("Login", "Client");
 			}
 
-			ViewData["CategoryId"] = new SelectList(await _unitOfWork.Category.GetAll(), "Id", "Name");
+			ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
 			return View();
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("Id,Name,Description,Stock,Price,Image,CategoryId")] SparePart sparePart)
+		public async Task<IActionResult> Create(
+			[Bind("Id,Name,Description,Stock,Price,Image,CategoryId")] SparePart sparePart)
 		{
-			if (!_authenticator.Authenticate(UserTypes.Admin))
+			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
 				return RedirectToAction("Login", "Client");
 			}
-			
+
 			IFormFile file = HttpContext.Request.Form.Files[0];
 
 			string fileName = Guid.NewGuid().ToString();
 			string imagePath = $@"\images\{fileName}{Path.GetExtension(file.FileName)}";
-			string fullPath = _webHostEnvironment.WebRootPath + imagePath;
+			string fullPath = webHostEnvironment.WebRootPath + imagePath;
 
 			sparePart.Image = imagePath;
 
 			ModelState.ClearValidationState("Image");
 			if (!TryValidateModel(sparePart, "Image"))
 			{
-				ViewData["CategoryId"] = new SelectList(await _unitOfWork.Category.GetAll(), "Id", "Name");
+				ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
 				return View(sparePart);
 			}
 
@@ -146,32 +141,34 @@ namespace UI.Controllers
 				file.CopyTo(fileStream);
 			}
 
-			await _unitOfWork.SparePart.Create(sparePart);
+			await unitOfWork.SparePart.Create(sparePart);
 
 			return RedirectToAction(nameof(Index));
 		}
 
 		public async Task<IActionResult> Edit(int id)
 		{
-			if (!_authenticator.Authenticate(UserTypes.Admin))
+			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
 				return RedirectToAction("Login", "Client");
 			}
-			
-			ViewData["CategoryId"] = new SelectList(await _unitOfWork.Category.GetAll(), "Id", "Name");
-			var sparePart = await _unitOfWork.SparePart.GetById(id);
+
+			ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
+			var sparePart = await unitOfWork.SparePart.GetById(id);
 			if (sparePart == null)
 			{
 				return NotFound();
 			}
+
 			return View(sparePart);
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Stock,Price,CategoryId")] SparePart sparePart)
+		public async Task<IActionResult> Edit(int id,
+			[Bind("Id,Name,Description,Stock,Price,CategoryId")] SparePart sparePart)
 		{
-			if (!_authenticator.Authenticate(UserTypes.Admin))
+			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
 				return RedirectToAction("Login", "Client");
 			}
@@ -188,56 +185,45 @@ namespace UI.Controllers
 
 				string fileName = Guid.NewGuid().ToString();
 				string imagePath = $@"\images\{fileName}{Path.GetExtension(file.FileName)}";
-				string fullPath = _webHostEnvironment.WebRootPath + imagePath;
+				string fullPath = webHostEnvironment.WebRootPath + imagePath;
 
 				sparePart.Image = imagePath;
 
 				ModelState.ClearValidationState("Image");
 				if (!TryValidateModel(sparePart, "Image"))
 				{
-					ViewData["CategoryId"] = new SelectList(await _unitOfWork.Category.GetAll(), "Id", "Name");
+					ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
 					return View(sparePart);
 				}
 
-				using (FileStream fileStream = new(fullPath, FileMode.Create))
-				{
-					file.CopyTo(fileStream);
-				}
+				await using FileStream fileStream = new(fullPath, FileMode.Create);
+				await file.CopyToAsync(fileStream);
 			}
 			else
 			{
-				sparePart.Image = (await _unitOfWork.SparePart.GetById(id))!.Image;
+				sparePart.Image = (await unitOfWork.SparePart.GetById(id))!.Image;
 
 				ModelState.ClearValidationState("Image");
 				if (!TryValidateModel(sparePart, "Image"))
 				{
-					ViewData["CategoryId"] = new SelectList(await _unitOfWork.Category.GetAll(), "Id", "Name");
+					ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
 					return View(sparePart);
 				}
 			}
 
-			await _unitOfWork.SparePart.Update(sparePart);
+			await unitOfWork.SparePart.Update(sparePart);
 			return RedirectToAction(nameof(Index));
 		}
 
 		public async Task<IActionResult> Delete(int id)
 		{
-			if (!_authenticator.Authenticate(UserTypes.Admin))
+			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
 				return RedirectToAction("Login", "Client");
 			}
 
-			await _unitOfWork.SparePart.Delete(id);
+			await unitOfWork.SparePart.Delete(id);
 			return RedirectToAction(nameof(Index));
-		}
-
-		private bool SparePartExist(int id)
-		{
-			if (_unitOfWork.SparePart.GetById(id) != null)
-			{
-				return true;
-			}
-			return false;
 		}
 	}
 }

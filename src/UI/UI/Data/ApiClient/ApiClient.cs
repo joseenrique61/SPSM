@@ -6,19 +6,21 @@ namespace UI.Data.ApiClient
 
 		private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public ApiClient(HttpClient client, IHttpContextAccessor httpContextAccesor)
+		public ApiClient(HttpClient client, IHttpContextAccessor httpContextAccesor, IConfiguration configuration, ILogger<ApiClient> logger)
 		{
 			_client = client;
 
-			_client.BaseAddress = new Uri("http://localhost:8080/api/");
+			var baseAddress = configuration["API:BaseAddress"];
+			if (string.IsNullOrEmpty(baseAddress))
+			{
+				logger.LogError("Base address is not set.");
+				throw new Exception("Base address is not set.");
+			}
+
+			_client.BaseAddress = new Uri(baseAddress);
 			_httpContextAccessor = httpContextAccesor;
 
 			SetToken(_httpContextAccessor.HttpContext!.Session.GetString("JWToken") ?? "");
-		}
-
-		private static string GetRoute<T>(string route)
-		{
-			return $"{typeof(T).Name}/{route}";
 		}
 
 		public void SetToken(string token)
@@ -27,23 +29,23 @@ namespace UI.Data.ApiClient
 			_httpContextAccessor.HttpContext!.Session.SetString("JWToken", token);
 		}
 
-		public async Task<HttpResponseMessage> Get<T>(string route)
+		public async Task<HttpResponseMessage> Get(string route)
 		{
-			return await _client.GetAsync(GetRoute<T>(route));
+			return await _client.GetAsync(route);
 		}
 
 		public async Task<HttpResponseMessage> Post<T>(string route, T data)
 		{
-			return await _client.PostAsJsonAsync(GetRoute<T>(route), data);
+			return await _client.PostAsJsonAsync(route, data);
 		}
 		public async Task<HttpResponseMessage> Put<T>(string route, T data)
 		{
-			return await _client.PutAsJsonAsync(GetRoute<T>(route), data);
+			return await _client.PutAsJsonAsync(route, data);
 		}
 
-		public async Task<HttpResponseMessage> Delete<T>(string route)
+		public async Task<HttpResponseMessage> Delete(string route)
 		{
-			return await _client.DeleteAsync(GetRoute<T>(route));
+			return await _client.DeleteAsync(route);
 		}
 	}
 }

@@ -144,9 +144,6 @@ services:
     depends_on:
       - postgres
       - search_service
-    environment:
-      - ConnectionStrings__InventoryConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${INVENTORY_DB}
-      - ConnectionStrings__SearchConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
     build:
       context: src/DataSeeder
       dockerfile: DataSeeder/Dockerfile
@@ -163,8 +160,8 @@ services:
       - inventory_service
       - search_service
       - kong
-    # environment:
-    #   - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+    environment:
+      - API__BaseAddress=http://localhost:8000/
     build:
       context: src/UI
       dockerfile: UI/Dockerfile
@@ -190,6 +187,8 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+    ports:
+      - 5001:8080
 
   user_service:
     image: user_service
@@ -208,6 +207,8 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+    ports:
+      - 5002:8080
 
   shopping_cart_service:
     image: shopping_cart_service
@@ -227,6 +228,8 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+    ports:
+      - 5003:8080
 
   inventory_service:
     image: inventory_service
@@ -245,6 +248,8 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+    ports:
+      - 5004:8080
 
   payment_service:
     image: payment_service
@@ -263,3 +268,5 @@ services:
     networks:
       - app-net
     restart: on-failure:5
+    ports:
+      - 5005:8080

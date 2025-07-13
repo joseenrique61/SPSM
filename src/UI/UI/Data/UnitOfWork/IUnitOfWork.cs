@@ -1,4 +1,4 @@
-using SparePartsStoreWeb.Data.Repositories.CategoryRepository;
+using UI.Data.Repositories.CategoryRepository;
 using UI.Data.Repositories.ClientRepository;
 using UI.Data.Repositories.PurchaseOrderRepository;
 using UI.Data.Repositories.SparePartRepository;
