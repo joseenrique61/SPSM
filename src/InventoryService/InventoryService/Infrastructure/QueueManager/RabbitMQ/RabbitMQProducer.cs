@@ -1,38 +1,47 @@
 ﻿using InventoryService.Domain.Models;
+using InventoryService.Infrastructure.Interfaces;
 using InventoryService.Infrastructure.Interfaces.Producers;
+using RabbitMQ.Client;
+using System.Text;
+using System.Text.Json;
 
 namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
 {
     public class RabbitMQProducer : IProducer
     {
-        public Task<bool> SendCategoryCreatedAlert(Category category, string exchange, string routingKey)
+        private readonly IQueueConnection _queueConnection;
+        private readonly ILogger<RabbitMQProducer> _logger;
+
+        public RabbitMQProducer(IQueueConnection queueConnection, ILogger<RabbitMQProducer> logger)
         {
-            throw new NotImplementedException();
+            _queueConnection = queueConnection;
+            _logger = logger;
         }
 
-        public Task<bool> SendCategoryDeletedAlert(Category category, string exchange, string routingKey)
+        public async Task PublishAsync<T>(T message, string exchange, string routingKey)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                await using var channel = await _queueConnection.CreateChannelAsync();
 
-        public Task<bool> SendCategoryUpdatedAlert(Category category, string exchange, string routingKey)
-        {
-            throw new NotImplementedException();
-        }
+                var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+                var properties = new BasicProperties { Persistent = true };
 
-        public Task<bool> SendProductCreatedAlert(Product product, string exchange, string routingKey)
-        {
-            throw new NotImplementedException();
-        }
+                await channel.BasicPublishAsync(
+                    exchange: exchange, 
+                    routingKey: routingKey, 
+                    mandatory: true, 
+                    basicProperties: properties, 
+                    body: body
+                );
 
-        public Task<bool> SendProductDeletedAlert(Product product, string exchange, string routingKey)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> SendProductUpdatedAlert(Product product, string exchange, string routingKey)
-        {
-            throw new NotImplementedException();
+                _logger.LogInformation("Message successfully published to exchange '{Exchange}'.", exchange);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error publishing message to RabbitMQ.");
+                throw;
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace InventoryService.Application.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly ILogger _logger;
+        private readonly ILogger<CategoryService> _logger;
         public CategoryService(ICategoryRepository categoryRepository, ILogger<CategoryService> logger)
         {
             _categoryRepository = categoryRepository;
