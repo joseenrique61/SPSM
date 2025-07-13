@@ -1,10 +1,11 @@
 using PaymentService.Application.Clients;
 using PaymentService.Domain.Models;
 using PaymentService.Domain.Repositories;
+using PaymentService.Infrastructure.Interfaces.Producers;
 
 namespace PaymentService.Application.Handlers;
 
-public class PaymentHandler(IPaymentRepository paymentRepository, IShoppingCartClient shoppingCartClient, IInventoryClient inventoryClient) : IPaymentHandler
+public class PaymentHandler(IPaymentRepository paymentRepository, IShoppingCartClient shoppingCartClient, IInventoryClient inventoryClient, IProducer producer) : IPaymentHandler
 {
     public async Task PayAsync(PurchaseOrder purchaseOrder)
     {
@@ -18,5 +19,7 @@ public class PaymentHandler(IPaymentRepository paymentRepository, IShoppingCartC
             throw new Exception("Error clearing cart.");
         }
         await paymentRepository.RegisterPaymentAsync(purchaseOrder);
+
+        await producer.PublishAsync(purchaseOrder.UserId, "payment.exchange", "notification.payment.confirmed");
     }
 }
