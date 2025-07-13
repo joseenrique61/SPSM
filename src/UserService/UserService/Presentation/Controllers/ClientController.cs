@@ -7,8 +7,8 @@ namespace UserService.Presentation.Controllers;
 [ApiController]
 public class ClientController(IClientRepository clientRepository, ILogger<UserController> logger) : Controller
 {
-    [HttpPost]
-    [Route("client/{id}")]
+    [HttpGet]
+    [Route("id/{id}")]
     public async Task<IActionResult> GetClient(int id)
     {
         try

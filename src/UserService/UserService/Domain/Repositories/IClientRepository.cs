@@ -1,9 +1,9 @@
-﻿using UserService.Domain.Models;
+﻿using UserService.Application.DTOs;
 
 namespace UserService.Domain.Repositories
 {
     public interface IClientRepository
     {
-        public Task<Client> GetClientByUserId(int id);
+        public Task<ClientDTO> GetClientByUserId(int id);
     }
 }
