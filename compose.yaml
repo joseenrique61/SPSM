@@ -184,6 +184,12 @@
         condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+      # --- RABBITMQ ---
+      # Map variables from the .env to the 'RabbitMQ' configuration section in appsettings.json
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Username=${RABBITMQ_DEFAULT_USER}
+      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASSWORD}
+      - RabbitMQ__VirtualHost=${RABBITMQ_VHOST}
     build:
       context: src/SearchService
       dockerfile: SearchService/Dockerfile
