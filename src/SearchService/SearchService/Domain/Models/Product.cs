@@ -20,6 +20,10 @@ public class Product
     public Category? Category { get; set; }
 
     public required double Price { get; set; }
+    
+    public required int Stock { get; set; }
+    
+    public bool IsDeleted { get; set; }
 
     public string? ImagePath { get; set; }
 }

@@ -1,4 +1,4 @@
-namespace SparePartsStoreWeb.Utilities
+namespace UI.Utilities
 {
 	public interface IAuthenticator
 	{

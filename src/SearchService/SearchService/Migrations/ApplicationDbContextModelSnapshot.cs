@@ -61,6 +61,9 @@ namespace SearchService.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -68,6 +71,9 @@ namespace SearchService.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

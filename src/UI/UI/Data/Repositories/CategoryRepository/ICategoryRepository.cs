@@ -1,4 +1,4 @@
-using SPSModels.Models;
+using UI.Models;
 
 namespace SparePartsStoreWeb.Data.Repositories.CategoryRepository
 {

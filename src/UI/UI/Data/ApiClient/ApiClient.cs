@@ -1,4 +1,4 @@
-namespace SparePartsStoreWeb.Data.ApiClient
+namespace UI.Data.ApiClient
 {
 	public class ApiClient : IApiClient
 	{
@@ -10,7 +10,7 @@ namespace SparePartsStoreWeb.Data.ApiClient
 		{
 			_client = client;
 
-			_client.BaseAddress = new Uri("http://localhost:5027/api/");
+			_client.BaseAddress = new Uri("http://localhost:8080/api/");
 			_httpContextAccessor = httpContextAccesor;
 
 			SetToken(_httpContextAccessor.HttpContext!.Session.GetString("JWToken") ?? "");

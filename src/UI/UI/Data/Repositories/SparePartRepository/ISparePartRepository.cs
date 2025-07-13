@@ -1,6 +1,6 @@
-using SPSModels.Models;
+using UI.Models;
 
-namespace SparePartsStoreWeb.Data.Repositories.SparePartRepository
+namespace UI.Data.Repositories.SparePartRepository
 {
     public interface ISparePartRepository
     {

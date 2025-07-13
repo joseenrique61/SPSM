@@ -1,7 +1,7 @@
-using SparePartsStoreWeb.Data.ApiClient;
-using SPSModels.Models;
+using UI.Data.ApiClient;
+using UI.Models;
 
-namespace SparePartsStoreWeb.Data.Repositories.ClientRepository
+namespace UI.Data.Repositories.ClientRepository
 {
     public class ClientRepository : IClientRepository
     {
