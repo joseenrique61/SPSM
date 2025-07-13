@@ -13,21 +13,24 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
         public string QueueName => "inventory.changes";
 
         private readonly ILogger<InventoryEventsConsumer> _logger;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IQueueConnection _queueConnection;
+
+        private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
         private IChannel _channel;
 
-        public InventoryEventsConsumer(ILogger<InventoryEventsConsumer> logger, IServiceScopeFactory scopeFactory, IQueueConnection queueConnection, IProductRepository productRepository)
+        public InventoryEventsConsumer(ILogger<InventoryEventsConsumer> logger, IQueueConnection queueConnection, IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
-            _logger = logger;
-            _scopeFactory = scopeFactory;
+            _logger = logger;          
             _queueConnection = queueConnection;
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("El consumidor de eventos de inventario se está iniciando.");
+            _logger.LogInformation("The inventory event consumer is starting.");
 
             try
             {
@@ -80,8 +83,6 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
 
         private async Task ProcessEvent(string message, string routingKey)
         {
-            using var scope = _scopeFactory.CreateScope();
-
             switch (routingKey)
             {
                 case "inventory.product.created":
@@ -90,9 +91,11 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
 
                         if (product != null)
                         {
-                            _logger.LogInformation("Processing creation/update for product ID: {ProductId}", product.Id);
+                            _logger.LogInformation("Processing creation for product ID: {ProductId}", product.Id);
 
+                            await _productRepository.AddAsync(product);
 
+                            _logger.LogInformation("Processing creation for product ID: {ProductId} was completed succesfully", product.Id);
                         }
                         break;
                     }
@@ -103,7 +106,11 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
                         
                         if (product != null)
                         {
-                            _logger.LogInformation("Processing creation/update for product ID: {ProductId}", product.Id);
+                            _logger.LogInformation("Processing update for product ID: {ProductId}", product.Id);
+
+                            await _productRepository.UpdateAsync(product);
+
+                            _logger.LogInformation("Processing update for product ID: {ProductId} was completed succesfully", product.Id);
                         }
 
                         break;
@@ -116,6 +123,10 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
                         if (deletedProduct != null)
                         {
                             _logger.LogInformation("Processing deletion for product ID: {ProductId}", deletedProduct.Id);
+
+                            await _productRepository.DeleteAsync(deletedProduct.Id);
+
+                            _logger.LogInformation("Deletion for product ID: {ProductId} was completed succesfully", deletedProduct.Id);
                         }
 
                         break;
@@ -128,8 +139,12 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
                         if (reducedProduct != null)
                         {
                             _logger.LogInformation("Processing reduction stock for product ID: {ProductId}", reducedProduct.Id);
+
+                            await _productRepository.UpdateAsync(reducedProduct);
+
+                            _logger.LogInformation("Reduction stock for product ID: {ProductId} was completed succesfully", reducedProduct.Id);
                         }
-                         
+
                         break;
                     }
 
@@ -139,8 +154,11 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
 
                         if (categoryAdded != null)
                         {
-                            _logger.LogInformation("Processing reduction stock for product ID: {ProductId}", categoryAdded.Id);
+                            _logger.LogInformation("Processing reduction stock for product ID: {CategoryId}", categoryAdded.Id);
 
+                            await _categoryRepository.AddCategoryAsync(categoryAdded);
+
+                            _logger.LogInformation("Processing reduction stock for product ID: {CategoryId} was completed succesfully", categoryAdded.Id);
                         }
 
                         break;
