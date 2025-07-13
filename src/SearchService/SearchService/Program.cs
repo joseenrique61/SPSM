@@ -22,6 +22,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
 // RabbitMQ Configuration 
 
 builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
@@ -29,9 +31,6 @@ builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSecti
 builder.Services.AddSingleton<IQueueConnection, RabbitMQConnection>();
 
 builder.Services.AddHostedService<InventoryEventsConsumer>();
-
-
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 
