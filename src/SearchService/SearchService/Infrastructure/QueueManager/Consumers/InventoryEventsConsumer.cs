@@ -105,7 +105,7 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
 
                 case "inventory.product.reduced":
                 {
-                    var reducedProductId = JsonSerializer.Deserialize<string>(message);
+                    var reducedProductId = JsonSerializer.Deserialize<Product>(message);
                     _logger.LogInformation("Processing reduction stock for product ID: {ProductId}", reducedProductId);
                     break;
                 }
