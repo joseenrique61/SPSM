@@ -20,6 +20,9 @@ public class PaymentHandler(IPaymentRepository paymentRepository, IShoppingCartC
         }
         await paymentRepository.RegisterPaymentAsync(purchaseOrder);
 
-        await producer.PublishAsync(purchaseOrder.UserId, "payment.exchange", "notification.payment.confirmed");
+        // Get the data from User using UserService endpoint to send an email
+        var client = null;
+
+        await producer.PublishAsync(client, "payment.exchange", "notification.payment.confirmed");
     }
 }
