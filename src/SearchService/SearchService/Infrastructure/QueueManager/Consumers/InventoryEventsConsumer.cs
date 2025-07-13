@@ -1,6 +1,7 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using SearchService.Domain.Models;
+using SearchService.Domain.Repositories;
 using SearchService.Infrastructure.Interfaces;
 using System.Text;
 using System.Text.Json;
@@ -17,7 +18,7 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
 
         private IChannel _channel;
 
-        public InventoryEventsConsumer(ILogger<InventoryEventsConsumer> logger, IServiceScopeFactory scopeFactory, IQueueConnection queueConnection)
+        public InventoryEventsConsumer(ILogger<InventoryEventsConsumer> logger, IServiceScopeFactory scopeFactory, IQueueConnection queueConnection, IProductRepository productRepository)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
@@ -39,10 +40,11 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
                    autoDelete: false,
                    arguments: null);
 
-                await _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                await _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
 
                 var consumer = new AsyncEventingBasicConsumer(_channel);
-                consumer.ReceivedAsync += OnMessageReceived
+
+                consumer.ReceivedAsync += OnMessageReceived;
 
                 await _channel.BasicConsumeAsync(queue: QueueName, autoAck: false, consumer: consumer);
 
@@ -83,33 +85,66 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
             switch (routingKey)
             {
                 case "inventory.product.created":
-                {
-                    var product = JsonSerializer.Deserialize<Product>(message);
-                    _logger.LogInformation("Processing creation/update for product ID: {ProductId}", product.Id);
-                    break;
-                }
+                    {
+                        var product = JsonSerializer.Deserialize<Product>(message);
+
+                        if (product != null)
+                        {
+                            _logger.LogInformation("Processing creation/update for product ID: {ProductId}", product.Id);
+
+
+                        }
+                        break;
+                    }
 
                 case "inventory.product.updated":
-                {
-                    var product = JsonSerializer.Deserialize<Product>(message);
-                    _logger.LogInformation("Processing creation/update for product ID: {ProductId}", product.Id);
-                    break;
-                }
+                    {
+                        var product = JsonSerializer.Deserialize<Product>(message);
+                        
+                        if (product != null)
+                        {
+                            _logger.LogInformation("Processing creation/update for product ID: {ProductId}", product.Id);
+                        }
+
+                        break;
+                    }
 
                 case "inventory.product.deleted":
-                {
-                    var deletedProductId = JsonSerializer.Deserialize<string>(message);
-                    _logger.LogInformation("Processing deletion for product ID: {ProductId}", deletedProductId);
-                    break;
-                }
+                    {
+                        var deletedProduct = JsonSerializer.Deserialize<Product>(message);
+                    
+                        if (deletedProduct != null)
+                        {
+                            _logger.LogInformation("Processing deletion for product ID: {ProductId}", deletedProduct.Id);
+                        }
+
+                        break;
+                    }
 
                 case "inventory.product.reduced":
-                {
-                    var reducedProductId = JsonSerializer.Deserialize<Product>(message);
-                    _logger.LogInformation("Processing reduction stock for product ID: {ProductId}", reducedProductId);
-                    break;
-                }
+                    {
+                        var reducedProduct = JsonSerializer.Deserialize<Product>(message);
+                    
+                        if (reducedProduct != null)
+                        {
+                            _logger.LogInformation("Processing reduction stock for product ID: {ProductId}", reducedProduct.Id);
+                        }
+                         
+                        break;
+                    }
 
+                case "inventory.category.added":
+                    {
+                        var categoryAdded = JsonSerializer.Deserialize<Category>(message);
+
+                        if (categoryAdded != null)
+                        {
+                            _logger.LogInformation("Processing reduction stock for product ID: {ProductId}", categoryAdded.Id);
+
+                        }
+
+                        break;
+                    }
                 default:
                     _logger.LogWarning("Unrecognized Routing Key: '{RoutingKey}'. The message is ignored.", routingKey);
                     break;

@@ -17,6 +17,4 @@ public interface IProductRepository
     public Task UpdateAsync(Product product);
 
     public Task DeleteAsync(int id);
-
-    public Task<bool> ReduceStockAsync(int id);
 }
