@@ -34,8 +34,10 @@ namespace InventoryService.Application.Services
                     return false;
                 }
 
+                var productToDelete = await _productRepository.GetByIdAsync(id);
+
                 // Publishing a message to RabbitMQ
-                await _notificationProducer.PublishAsync(id, exchange, "inventory.product.deleted");
+                await _notificationProducer.PublishAsync(productToDelete, exchange, "inventory.product.deleted");
 
                 _logger.LogInformation($"Product with ID: {id} deleted sucessfully.");
                 return true;
@@ -146,7 +148,7 @@ namespace InventoryService.Application.Services
                     {
                         _logger.LogInformation($"Product with ID: {reduceDTO.Id} cannot be reduced. Not Enough Stock");
                         return false;
-                    } 
+                    }
 
                     product.Stock -= reduceDTO.Amount;
 
@@ -162,6 +164,9 @@ namespace InventoryService.Application.Services
                         _logger.LogInformation($"Product with ID: {product.Id} cannot be reduced. Verify the ID");
                         return false;
                     }
+
+                    // Publishing a message to RabbitMQ
+                    await _notificationProducer.PublishAsync(product, exchange, "inventory.product.reduced");
 
                     _logger.LogInformation($"Product with ID: {product.Id} reduced sucessfully.");
                 }

@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SearchService.Domain.Repositories;
 using SearchService.Infrastructure.ApplicationDbContext;
+using SearchService.Infrastructure.Interfaces;
+using SearchService.Infrastructure.QueueManager;
+using SearchService.Infrastructure.QueueManager.Consumers;
 using SearchService.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,8 +18,18 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// RabbitMQ Configuration 
+
+builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
+
+builder.Services.AddSingleton<IQueueConnection, RabbitMQConnection>();
+
+builder.Services.AddHostedService<InventoryEventsConsumer>();
+
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
