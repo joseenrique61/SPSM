@@ -143,7 +143,6 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
 
                         }
 
-
                         break;
                     }
                 default:
