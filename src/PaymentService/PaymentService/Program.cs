@@ -5,6 +5,9 @@ using PaymentService.Domain.Repositories;
 using PaymentService.Infrastructure.ApplicationDbContext;
 using PaymentService.Infrastructure.Clients;
 using PaymentService.Infrastructure.Clients.Inventory;
+using PaymentService.Infrastructure.Interfaces;
+using PaymentService.Infrastructure.Interfaces.Producers;
+using PaymentService.Infrastructure.QueueManager.RabbitMQ;
 using PaymentService.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +23,11 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(opt =
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 ConfigureHttpClients();
+
+// RabbitMQ
+builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
+builder.Services.AddSingleton<IQueueConnection, RabbitMQConnection>();
+builder.Services.AddSingleton<IProducer, RabbitMQProducer>();
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentHandler, PaymentHandler>();
