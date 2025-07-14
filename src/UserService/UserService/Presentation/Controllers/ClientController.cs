@@ -21,7 +21,7 @@ public class ClientController(IClientRepository clientRepository, ILogger<UserCo
         catch (Exception e)
         {
             logger.LogError(e.Message);
-            return Unauthorized("There is no customer information associated with the User ID.");
+            return BadRequest("The UserId is incorrect.");
         }
     }
 }

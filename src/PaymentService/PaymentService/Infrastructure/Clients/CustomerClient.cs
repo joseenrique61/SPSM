@@ -1,4 +1,4 @@
-﻿using PaymentService.Application.Clients;
+using PaymentService.Application.Clients;
 using PaymentService.Application.DTOs;
 
 namespace PaymentService.Infrastructure.Clients
@@ -11,7 +11,7 @@ namespace PaymentService.Infrastructure.Clients
 
             if (client == null)
                 throw new Exception("There isn't customer information related to this UserId");
-
+                
             return client;
         }
     }
