@@ -1,9 +1,9 @@
-﻿using SearchService.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using SearchService.Domain.Models;
 using SearchService.Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
 using SearchService.Infrastructure.ApplicationDbContext;
 
-namespace InventoryService.Infrastructure.Repositories
+namespace SearchService.Infrastructure.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {

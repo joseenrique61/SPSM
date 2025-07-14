@@ -85,7 +85,7 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
         {
             switch (routingKey)
             {
-                case "inventory.product.created":
+                case "inventory.product.added":
                     {
                         var product = JsonSerializer.Deserialize<Product>(message);
 

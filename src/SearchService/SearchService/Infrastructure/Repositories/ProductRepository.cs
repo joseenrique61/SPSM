@@ -37,6 +37,7 @@ public class ProductRepository(IApplicationDbContext dbContext) : IProductReposi
     public async Task AddAsync(Product product)
     {
         await dbContext.Products.AddAsync(product);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(Product product)
@@ -54,6 +55,7 @@ public class ProductRepository(IApplicationDbContext dbContext) : IProductReposi
                     .SetProperty(p => p.CategoryId, product.CategoryId)
                     .SetProperty(p => p.ImagePath, product.ImagePath));
         }
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
@@ -62,7 +64,7 @@ public class ProductRepository(IApplicationDbContext dbContext) : IProductReposi
 
         if (product != null)
         {
-            dbContext.Products.Remove(product);
+            product.IsDeleted = true;
             await dbContext.SaveChangesAsync();
         }  
     }

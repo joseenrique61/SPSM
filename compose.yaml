@@ -53,26 +53,26 @@
       stdin_open: true
       tty: true
 
-  mongodb:
-    image: mongo
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - app-net
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 3
-    restart: on-failure
-    stdin_open: true
-    tty: true
-    attach: false
+    mongodb:
+      image: mongo
+      environment:
+        - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+        - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      ports:
+        - "27017:27017"
+      volumes:
+        - mongodb_data:/data/db
+      networks:
+        - app-net
+      healthcheck:
+        test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+        interval: 10s
+        timeout: 10s
+        retries: 3
+      restart: on-failure
+      stdin_open: true
+      tty: true
+      attach: false
 
     kong:
       image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -152,50 +152,51 @@
         dockerfile: DataSeeder/Dockerfile
       networks:
         - app-net
+      restart: on-failure
+
+    ui_service:
+      image: ui_service
+      depends_on:
+        - user_service
+        - payment_service
+        - shopping_cart_service
+        - inventory_service
+        - search_service
+        - kong
+      # environment:
+      #   - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+      build:
+        context: src/UI
+        dockerfile: UI/Dockerfile
+      ports:
+        - 8080:8080
+      network_mode: host
       restart: on-failure:5
 
-  ui_service:
-    image: ui_service
-    depends_on:
-      - user_service
-      - payment_service
-      - shopping_cart_service
-      - inventory_service
-      - search_service
-      - kong
-    # environment:
-    #   - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
-    build:
-      context: src/UI
-      dockerfile: UI/Dockerfile
-    ports:
-      - 8080:8080
-    network_mode: host
-    restart: on-failure:5
-
-  search_service:
-    image: search_service
-    depends_on:
-      postgres:
-        condition: service_healthy
-      kong:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    environment:
-      - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
-      # --- RABBITMQ ---
-      # Map variables from the .env to the 'RabbitMQ' configuration section in appsettings.json
-      - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__Username=${RABBITMQ_DEFAULT_USER}
-      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASSWORD}
-      - RabbitMQ__VirtualHost=${RABBITMQ_VHOST}
-    build:
-      context: src/SearchService
-      dockerfile: SearchService/Dockerfile
-    networks:
-      - app-net
-    restart: on-failure:5
+    search_service:
+      image: search_service
+      depends_on:
+        postgres:
+          condition: service_healthy
+        kong:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_healthy
+      environment:
+        - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+        # --- RABBITMQ ---
+        # Map variables from the .env to the 'RabbitMQ' configuration section in appsettings.json
+        - RabbitMQ__HostName=rabbitmq
+        - RabbitMQ__Port=5672
+        - RabbitMQ__Username=${RABBITMQ_DEFAULT_USER}
+        - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASSWORD}
+        - RabbitMQ__VirtualHost=${RABBITMQ_VHOST}
+      build:
+        context: src/SearchService
+        dockerfile: SearchService/Dockerfile
+      networks:
+        - app-net
+      restart: on-failure:5
 
     user_service:
       image: user_service
@@ -248,6 +249,7 @@
         # --- RABBITMQ ---
         # Map variables from the .env to the 'RabbitMQ' configuration section in appsettings.json
         - RabbitMQ__HostName=rabbitmq
+        - RabbitMQ__Port=5672
         - RabbitMQ__Username=${RABBITMQ_DEFAULT_USER}
         - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASSWORD}
         - RabbitMQ__VirtualHost=${RABBITMQ_VHOST}
@@ -272,6 +274,7 @@
         # --- RABBITMQ ---
         # Map variables from the .env to the 'RabbitMQ' configuration section in appsettings.json
         - RabbitMQ__HostName=rabbitmq
+        - RabbitMQ__Port=5672
         - RabbitMQ__Username=${RABBITMQ_DEFAULT_USER}
         - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASSWORD}
         - RabbitMQ__VirtualHost=${RABBITMQ_VHOST}
@@ -304,6 +307,7 @@
         # --- RABBITMQ ---
         # Map variables from the .env to the 'RabbitMQ' configuration section in appsettings.json
         - RabbitMQ__HostName=rabbitmq
+        - RabbitMQ__Port=5672
         - RabbitMQ__Username=${RABBITMQ_DEFAULT_USER}
         - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASSWORD}
         - RabbitMQ__VirtualHost=${RABBITMQ_VHOST}
