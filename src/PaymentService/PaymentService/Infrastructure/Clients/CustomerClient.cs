@@ -3,7 +3,7 @@ using PaymentService.Application.DTOs;
 
 namespace PaymentService.Infrastructure.Clients
 {
-    public class CustomerClient(HttpClient httpClient) : ICostumerClient
+    public class CustomerClient(HttpClient httpClient) : ICustomerClient
     {
         public async Task<ClientDTO> GetClient(int id)
         {

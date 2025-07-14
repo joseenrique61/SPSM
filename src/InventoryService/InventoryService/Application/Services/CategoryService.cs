@@ -2,16 +2,23 @@
 using InventoryService.Application.Interfaces;
 using InventoryService.Domain.Models;
 using InventoryService.Domain.Repositories;
+using InventoryService.Infrastructure.Interfaces.Producers;
+using InventoryService.Infrastructure.Repositories;
 
 namespace InventoryService.Application.Services
 {
     public class CategoryService : ICategoryService
     {
+        private string exchange => "inventory.exchange";
+
         private readonly ICategoryRepository _categoryRepository;
         private readonly ILogger<CategoryService> _logger;
-        public CategoryService(ICategoryRepository categoryRepository, ILogger<CategoryService> logger)
+        private readonly IProducer _notificationProducer;
+
+        public CategoryService(ICategoryRepository categoryRepository, ILogger<CategoryService> logger, IProducer notificationProducer)
         {
             _categoryRepository = categoryRepository;
+            _notificationProducer = notificationProducer;
             _logger = logger;
         }
 
@@ -26,6 +33,11 @@ namespace InventoryService.Application.Services
                     _logger.LogInformation($"Category with ID: {id} cannot be deleted. Verify the ID");
                     return false;
                 }
+
+                var categoryToDelete = await _categoryRepository.GetByIdAsync(id);
+
+                // Publishing a message to RabbitMQ
+                await _notificationProducer.PublishAsync(categoryToDelete, exchange, "inventory.category.deleted");
 
                 _logger.LogInformation($"Category with ID: {id} deleted sucessfully.");
                 return true;
@@ -56,6 +68,9 @@ namespace InventoryService.Application.Services
                 };
 
                 await _categoryRepository.AddCategoryAsync(category);
+
+                // Publishing a message to RabbitMQ
+                await _notificationProducer.PublishAsync(category, exchange, "inventory.category.added");
 
                 _logger.LogInformation($"Category with ID: {category.Id} created sucessfully.");
                 return true;
@@ -91,6 +106,9 @@ namespace InventoryService.Application.Services
                     _logger.LogInformation($"Category with ID: {id} cannot be updated. Verify the ID");
                     return false;
                 }
+
+                // Publishing a message to RabbitMQ
+                await _notificationProducer.PublishAsync(category, exchange, "inventory.category.updated");
 
                 _logger.LogInformation($"Category with ID: {id} updated sucessfully.");
                 return true;
