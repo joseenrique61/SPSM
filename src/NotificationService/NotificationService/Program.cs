@@ -5,11 +5,19 @@ using NotificationService.Application.Services;
 using NotificationService.Infraestructure.NotificationsProvider;
 using NotificationService.Infraestructure.Persistence;
 using NotificationService.Infraestructure.Persistence.Repositories;
+using NotificationService.Infrastructure;
+using NotificationService.Infrastructure.Consumers;
+using NotificationService.Infrastructure.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDBContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// RabbitMQ
+builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
+builder.Services.AddSingleton<IQueueConnection, RabbitMQConnection>();
+builder.Services.AddHostedService<NotificationsEventsConsumer>();
 
 // Register the Main Application service.
 builder.Services.AddScoped<NotificationAppService>();
