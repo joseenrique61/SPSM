@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using UserService.Domain.Models;
 using UserService.Domain.Repositories;
+using UserService.Infrastructure.Repositories;
 
 namespace UserService.Presentation.Controllers;
 
@@ -9,7 +11,7 @@ public class ClientController(IClientRepository clientRepository, ILogger<UserCo
 {
     [HttpGet]
     [Route("id/{id}")]
-    public async Task<IActionResult> GetClient(int id)
+    public async Task<IActionResult> GetClientByUserId(int id)
     {
         try
         {

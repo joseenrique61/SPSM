@@ -70,9 +70,9 @@ void ConfigureHttpClients()
         client.BaseAddress = new Uri(baseAddress + "inventory/product/");
     })
     .AddHttpMessageHandler<AuthenticationPropagationHandler>();
-    builder.Services.AddHttpClient<IInventoryClient, InventoryClient>(client =>
+    builder.Services.AddHttpClient<ICustomerClient, CustomerClient>(client =>
     {
-        client.BaseAddress = new Uri(baseAddress + "inventory/product/");
+        client.BaseAddress = new Uri(baseAddress + "client/");
     })
     .AddHttpMessageHandler<AuthenticationPropagationHandler>();
 }

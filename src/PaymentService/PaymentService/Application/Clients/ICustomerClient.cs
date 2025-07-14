@@ -1,9 +1,9 @@
 using PaymentService.Application.DTOs;
-using PaymentService.Domain.Models;
 
 namespace PaymentService.Application.Clients;
 
-public interface ICustomerClient
+public interface ICostumerClient
 {
-    public Task<ClientDTO> GetClientByUserId(int id);
+    public Task<ClientDTO> GetClient(int id);
 }
+

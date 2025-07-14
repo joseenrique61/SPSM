@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UserService.Application.DTOs;
 using UserService.Domain.Repositories;
 
