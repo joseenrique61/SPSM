@@ -34,6 +34,7 @@ namespace InventoryService.Application.Services
                     return false;
                 }
 
+                await _productRepository.DeleteProductAsync(id);
                 var productToDelete = await _productRepository.GetByIdAsync(id);
 
                 // Publishing a message to RabbitMQ

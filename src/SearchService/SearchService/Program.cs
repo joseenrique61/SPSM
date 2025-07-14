@@ -23,6 +23,7 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(opt =
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // RabbitMQ Configuration 
 
