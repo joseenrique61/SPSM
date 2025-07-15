@@ -73,31 +73,38 @@ namespace UI.Controllers
 				return RedirectToAction("Login", "Client");
 			}
 
-			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
-			Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePart.Id);
-			if (order == null)
+			// PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
+			// Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePart.Id);
+			// if (order == null)
+			// {
+			// 	purchaseOrder.Orders.Add(new Order
+			// 	{
+			// 		SparePartId = sparePart.Id,
+			// 		Amount = amount
+			// 	});
+			// }
+			// else
+			// {
+			// 	if (order.Amount + amount > sparePart.Stock)
+			// 	{
+			// 		TempData["Error"] = "Invalid amount.";
+			// 		return RedirectToAction(nameof(Details), new { id = sparePart.Id });
+			// 	}
+			//
+			// 	order.Amount += amount;
+			// }
+			
+			// purchaseOrder.Client = null;
+			var result = await unitOfWork.PurchaseOrder.AddProduct((int)clientId, new Order()
 			{
-				purchaseOrder.Orders.Add(new Order
-				{
-					SparePartId = sparePart.Id,
-					Amount = amount
-				});
-			}
-			else
-			{
-				if (order.Amount + amount > sparePart.Stock)
-				{
-					TempData["Error"] = "Invalid amount.";
-					return RedirectToAction(nameof(Details), new { id = sparePart.Id });
-				}
-
-				order.Amount += amount;
-			}
-
-			purchaseOrder.Client = null;
-			await unitOfWork.PurchaseOrder.Update(purchaseOrder);
-
-			return RedirectToAction("CartInfo", "PurchaseOrder");
+				SparePartId = sparePart.Id,
+				Amount = amount
+			});
+			
+			if (result) return RedirectToAction("CartInfo", "PurchaseOrder");
+			
+			TempData["Error"] = "Invalid amount.";
+			return RedirectToAction(nameof(Details), new { id = sparePart.Id });
 		}
 
 		public async Task<IActionResult> Create()

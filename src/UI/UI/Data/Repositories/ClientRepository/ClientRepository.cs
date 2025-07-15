@@ -40,11 +40,9 @@ namespace UI.Data.Repositories.ClientRepository
 
         public async Task<Client?> GetById(int id)
         {
-            // var response = await apiClient.Get($"search/product/id/{id}");
-            // if (!response.IsSuccessStatusCode) return null;
-            // return (await response.Content.ReadFromJsonAsync<Client>())!;
-            
-            throw new NotImplementedException();
+            var response = await apiClient.Get($"client/full/id/{id}");
+            if (!response.IsSuccessStatusCode) return null;
+            return (await response.Content.ReadFromJsonAsync<Client>())!;
         }
     }
 }

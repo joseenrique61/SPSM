@@ -1,16 +1,19 @@
 using UI.Data.Adapters;
 using UI.Data.ApiClient;
+using UI.Data.Repositories.ClientRepository;
 using UI.Data.Repositories.SparePartRepository;
 using UI.Models;
 using UI.Models.DTOs;
 
 namespace UI.Data.Repositories.PurchaseOrderRepository
 {
-	public class PurchaseOrderRepository(IApiClient client, ISparePartRepository sparePartRepository) : IPurchaseOrderRepository
+	public class PurchaseOrderRepository(IApiClient client, ISparePartRepository sparePartRepository, IClientRepository clientRepository) : IPurchaseOrderRepository
 	{
 		private async Task<PurchaseOrder> ComposePurchaseOrder(PurchaseOrderDTO dto)
 		{
 			var purchaseOrder = dto.ToPurchaseOrder();
+
+			purchaseOrder.Client = await clientRepository.GetById(purchaseOrder.ClientId);
 
 			foreach (var order in purchaseOrder.Orders)
 			{
@@ -46,35 +49,29 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 			// return null;
 		}
 
-		public async Task<PurchaseOrder?> GetById(int id)
-		{
-			throw new NotImplementedException();
-			// HttpResponseMessage response = await client.Get($"shopping_cart/id/{id}");
-			// if (response.IsSuccessStatusCode)
-			// {
-			// 	return await response.Content.ReadFromJsonAsync<PurchaseOrder>();
-			// }
-			// return null;
-		}
-
 		public async Task<PurchaseOrder> GetCurrentByClientId(int id)
 		{
 			HttpResponseMessage response = await client.Get($"shopping_cart/userId/{id}");
 			return await ComposePurchaseOrder((await response.Content.ReadFromJsonAsync<PurchaseOrderDTO>())!);
 		}
 
-		public async Task<bool> Create(PurchaseOrder purchaseOrder)
+		public async Task<bool> AddProduct(int userId, Order order)
 		{
-			throw new NotImplementedException();
-			// HttpResponseMessage response = await client.Post("create", purchaseOrder);
-			// return response.IsSuccessStatusCode;
+			return (await client.Post($"shopping_cart/add_item/{userId}", new OrderDTO()
+			{
+				Id = order.SparePartId,
+				Amount = order.Amount
+			})).IsSuccessStatusCode;
 		}
 
-		public async Task<bool> Update(PurchaseOrder purchaseOrder)
+		public Task<bool> RemoveProduct(int userId, Order order)
 		{
 			throw new NotImplementedException();
-			// HttpResponseMessage response = await client.Put("update", purchaseOrder);
-			// return response.IsSuccessStatusCode;
+		}
+
+		public Task<bool> DeleteProduct(int userId, int productId)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

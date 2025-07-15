@@ -8,12 +8,12 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 
 		public Task<PurchaseOrder> GetCurrentByClientId(int id);
 
-		public Task<PurchaseOrder?> GetById(int id);
-
 		public Task<List<PurchaseOrder>?> GetByClientId(int id);
 
-		public Task<bool> Create(PurchaseOrder purchaseOrder);
-
-		public Task<bool> Update(PurchaseOrder purchaseOrder);
+		public Task<bool> AddProduct(int userId, Order order);
+		
+		public Task<bool> RemoveProduct(int userId, Order order);
+		
+		public Task<bool> DeleteProduct(int userId, int productId);
 	}
 }

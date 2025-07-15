@@ -125,6 +125,18 @@ services:
         methods:
           - POST
         strip_path: false
+      - name: get-client
+        paths:
+          - /client/id/
+        methods:
+          - GET
+        strip_path: false
+      - name: get-full-client
+        paths:
+          - /client/full/id/
+        methods:
+          - GET
+        strip_path: false
   - name: shopping-cart-service
     url: http://shopping_cart_service:8080  # Internal URL of the product
     routes:

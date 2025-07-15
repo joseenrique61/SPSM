@@ -14,7 +14,7 @@ namespace UI.Controllers
 				return RedirectToAction("Login", "Client");
 			}
 
-			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)HttpContext.Session.GetInt32("ClientId")!);
+			var purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)HttpContext.Session.GetInt32("ClientId")!);
 
 			List<string> warnings = purchaseOrder.Orders
 				.Where(o => o.Amount > o.SparePart!.Stock)
@@ -27,31 +27,32 @@ namespace UI.Controllers
 
 		public async Task<IActionResult> RemoveFromCart(int sparePartId)
 		{
-			if (!authenticator.Authenticate(UserTypes.Client))
-			{
-				return RedirectToAction("Login", "Client");
-			}
-
-			int? clientId = HttpContext.Session.GetInt32("ClientId");
-			if (clientId == null)
-			{
-				return RedirectToAction("Login", "Client");
-			}
-
-			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
-
-
-			var existingOrder = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePartId);
-
-			if (existingOrder != null)
-			{
-
-				purchaseOrder.Orders.Remove(existingOrder);
-				purchaseOrder.Client = null;
-
-				await unitOfWork.PurchaseOrder.Update(purchaseOrder);
-			}
-			return RedirectToAction("CartInfo", "PurchaseOrder");
+			throw new NotImplementedException();
+			// if (!authenticator.Authenticate(UserTypes.Client))
+			// {
+			// 	return RedirectToAction("Login", "Client");
+			// }
+			//
+			// int? clientId = HttpContext.Session.GetInt32("ClientId");
+			// if (clientId == null)
+			// {
+			// 	return RedirectToAction("Login", "Client");
+			// }
+			//
+			// PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
+			//
+			//
+			// var existingOrder = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePartId);
+			//
+			// if (existingOrder != null)
+			// {
+			//
+			// 	purchaseOrder.Orders.Remove(existingOrder);
+			// 	purchaseOrder.Client = null;
+			//
+			// 	await unitOfWork.PurchaseOrder.Update(purchaseOrder);
+			// }
+			// return RedirectToAction("CartInfo", "PurchaseOrder");
 		}
 
 		public async Task<IActionResult> PurchaseOrderListAdmin()
@@ -80,6 +81,7 @@ namespace UI.Controllers
 
 		public async Task<IActionResult> Buy()
 		{
+			throw new NotImplementedException();
 			if (!authenticator.Authenticate(UserTypes.Client))
 			{
 				return RedirectToAction("Login", "Client");
@@ -91,23 +93,23 @@ namespace UI.Controllers
 				return RedirectToAction("Login", "Client");
 			}
 
-			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
-			purchaseOrder.PurchaseCompleted = true;
-			purchaseOrder.Client = null;
-			await unitOfWork.PurchaseOrder.Update(purchaseOrder);
+			// PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
+			// purchaseOrder.PurchaseCompleted = true;
+			// purchaseOrder.Client = null;
+			// await unitOfWork.PurchaseOrder.Update(purchaseOrder);
 
-			List<SparePart> spareParts = (await unitOfWork.SparePart.GetAll());
-			foreach (SparePart sparePart in spareParts)
-			{
-				Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePart.Id);
-				if (order == null)
-				{
-					continue;
-				}
-
-				sparePart.Stock -= order.Amount;
-				await unitOfWork.SparePart.Update(sparePart);
-			}
+			// List<SparePart> spareParts = (await unitOfWork.SparePart.GetAll());
+			// foreach (SparePart sparePart in spareParts)
+			// {
+			// 	Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePart.Id);
+			// 	if (order == null)
+			// 	{
+			// 		continue;
+			// 	}
+			//
+			// 	sparePart.Stock -= order.Amount;
+			// 	await unitOfWork.SparePart.Update(sparePart);
+			// }
 
 			return RedirectToAction("Index", "Home");
 		}
