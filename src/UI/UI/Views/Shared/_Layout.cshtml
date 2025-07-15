@@ -42,7 +42,7 @@
 								<input class="form-control me-2" type="search" name="name" placeholder="Search" aria-label="Search">
 							</div>
 						</form>
-						@if (ViewBag.Role != "")
+						@if (ViewBag.Role != null && ViewBag.Role != "")
 						{
 							<li class="nav-item dropdown">
 								<button class="btn btn-secondary dropdown-toggle text-dark" data-bs-toggle="dropdown" aria-expanded="false">

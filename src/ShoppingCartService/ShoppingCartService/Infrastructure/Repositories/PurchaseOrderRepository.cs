@@ -19,10 +19,15 @@ public class PurchaseOrderRepository : IPurchaseOrderRepository
     public async Task<PurchaseOrder> GetByUserIdAsync(int id)
     {
         var purchaseOrder = await _ordersCollection.Find(o => o.UserId == id).FirstOrDefaultAsync();
-        return purchaseOrder ?? new PurchaseOrder()
+        if (purchaseOrder == null)
         {
-            UserId = id,
-        };
+            purchaseOrder = new PurchaseOrder()
+            {
+                UserId = id
+            };
+            await CreateAsync(purchaseOrder);
+        }
+        return purchaseOrder;
     }
 
     // Create an order

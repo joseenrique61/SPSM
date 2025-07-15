@@ -4,6 +4,8 @@ namespace ShoppingCartService.Application;
 
 public interface IPurchaseOrderHandler
 {
+    public Task<PurchaseOrder> GetCart(int userId);
+    
     public Task AddProductToCart(int userId, Product product);
     
     public Task<bool> RemoveProductFromCart(int userId, Product product);

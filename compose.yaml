@@ -163,8 +163,8 @@
         - inventory_service
         - search_service
         - kong
-      # environment:
-      #   - ConnectionStrings__DefaultConnection=Host=postgres;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${SEARCH_DB}
+      environment:
+        - API__BaseAddress=http://localhost:8000/
       build:
         context: src/UI
         dockerfile: UI/Dockerfile

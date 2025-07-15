@@ -5,6 +5,11 @@ namespace ShoppingCartService.Application;
 
 public class PurchaseOrderHandler(IPurchaseOrderRepository purchaseOrderRepository) : IPurchaseOrderHandler
 {
+    public async Task<PurchaseOrder> GetCart(int userId)
+    {
+        return await purchaseOrderRepository.GetByUserIdAsync(userId);
+    }
+    
     public async Task AddProductToCart(int userId, Product product)
     {
         var purchaseOrder = await purchaseOrderRepository.GetByUserIdAsync(userId);

@@ -1,26 +1,23 @@
-using SparePartsStoreWeb.Data.Repositories.CategoryRepository;
+using UI.Data.Repositories.CategoryRepository;
 using UI.Data.Repositories.ClientRepository;
 using UI.Data.Repositories.PurchaseOrderRepository;
 using UI.Data.Repositories.SparePartRepository;
 
 namespace UI.Data.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
-	{
-		public ISparePartRepository SparePart { get; }
+    public class UnitOfWork(
+	    ISparePartRepository sparePart,
+	    ICategoryRepository category,
+	    IPurchaseOrderRepository purchaseOrder,
+	    IClientRepository client)
+	    : IUnitOfWork
+    {
+		public ISparePartRepository SparePart { get; } = sparePart;
 
-		public ICategoryRepository Category { get; }
-		
-		public IPurchaseOrderRepository PurchaseOrder { get; }
+		public ICategoryRepository Category { get; } = category;
 
-		public IClientRepository Client { get; }
+		public IPurchaseOrderRepository PurchaseOrder { get; } = purchaseOrder;
 
-		public UnitOfWork(ISparePartRepository sparePart, ICategoryRepository category, IPurchaseOrderRepository purchaseOrder, IClientRepository client)
-		{
-			SparePart = sparePart;
-			Category = category;
-			PurchaseOrder = purchaseOrder;
-			Client = client;
-		}
+		public IClientRepository Client { get; } = client;
 	}
 }

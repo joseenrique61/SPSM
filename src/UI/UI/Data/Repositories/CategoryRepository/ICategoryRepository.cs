@@ -1,6 +1,6 @@
 using UI.Models;
 
-namespace SparePartsStoreWeb.Data.Repositories.CategoryRepository
+namespace UI.Data.Repositories.CategoryRepository
 {
     public interface ICategoryRepository
     {

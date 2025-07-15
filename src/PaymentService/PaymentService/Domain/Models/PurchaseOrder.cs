@@ -10,11 +10,6 @@ public class PurchaseOrder
     
     public int UserId { get; set; }
     
-    [ForeignKey(nameof(ShippingAddressId))]
-    public int ShippingAddressId { get; set; }
-    
-    public ShippingAddress? ShippingAddress { get; set; }
-
     public List<Product> Products { get; set; } = [];
     
     public double Total { get; set; }

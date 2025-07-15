@@ -32,6 +32,11 @@ namespace SearchService.Infrastructure.Repositories
             return true;
         }
 
+        public async Task<List<Category>> GetAll()
+        {
+            return await _applicationDBContext.Categories.ToListAsync();
+        }
+
         public async Task<Category?> GetByIdAsync(int id)
         {
             return await _applicationDBContext.Categories.FindAsync(id);

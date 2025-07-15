@@ -14,7 +14,9 @@ public class ProductRepository(IApplicationDbContext dbContext) : IProductReposi
 
     public async Task<Product?> GetByIdAsync(int id)
     {
-        return await dbContext.Products.FindAsync(id);
+        return await dbContext.Products.Include(p => p.Category)
+            .Where(p => p.Id == id)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<List<Product>> GetByName(string name)

@@ -7,7 +7,7 @@
 <div class="content">
 	<h3>Purchase Orders</h3>
 	<ul class="list-group my-4">
-		@foreach (PurchaseOrder purchaseOrder in Model.Where(p => p.PurchaseCompleted))
+		@foreach (PurchaseOrder purchaseOrder in Model)
 		{
 			<li class="list-group-item pt-3">
 				<h6><strong>Total:</strong> $@purchaseOrder.Orders.Sum(o => o.Amount * o.SparePart!.Price)</h6>

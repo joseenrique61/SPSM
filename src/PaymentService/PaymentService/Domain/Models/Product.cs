@@ -7,9 +7,6 @@ public class Product
     [Key]
     public int Id { get; set; }
     
-    [Required, MaxLength(100)]
-    public required string Name { get; set; }
-    
     [Required]
     public required double Price { get; set; }
     
