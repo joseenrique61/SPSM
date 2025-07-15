@@ -8,23 +8,28 @@ using RabbitMQ.Client.Events;
 
 namespace NotificationService.Infrastructure.Consumers
 {
-    public class NotificationsEventsConsumer(
-        ILogger<NotificationsEventsConsumer> logger,
-        IQueueConnection queueConnection,
-        NotificationAppService notificationAppService)
-        : BackgroundService, IConsumer
+    public class NotificationsEventsConsumer: BackgroundService, IConsumer
     {
         public string QueueName => "notification.alerts";
 
+        private readonly ILogger<NotificationsEventsConsumer> _logger;
+        private readonly IQueueConnection _queueConnection;
+        private readonly IServiceScopeFactory _scopeFactory;
+
         private IChannel _channel;
+
+        public NotificationsEventsConsumer(ILogger<NotificationsEventsConsumer> logger, IQueueConnection queueConnection, IServiceScopeFactory serviceScopeFactory)
+        {
+            _logger = logger;
+            _queueConnection = queueConnection;
+                 = serviceScopeFactory;
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation("El consumidor de eventos de inventario se está iniciando.");
-
             try
             {
-                _channel = await queueConnection.CreateChannelAsync();
+                _channel = await _queueConnection.CreateChannelAsync();
 
                 await _channel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
 
@@ -34,13 +39,13 @@ namespace NotificationService.Infrastructure.Consumers
 
                 await _channel.BasicConsumeAsync(queue: QueueName, autoAck: false, consumer: consumer);
 
-                logger.LogInformation("Consumer started. Waiting for messages in queue '{QueueName}'.", QueueName);
+                _logger.LogInformation("Consumer started. Waiting for messages in queue '{QueueName}'.", QueueName);
 
                 await Task.Delay(Timeout.Infinite, stoppingToken);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Unexpected error");
+                _logger.LogError(ex, "Unexpected error");
             }
         }
 
@@ -49,22 +54,41 @@ namespace NotificationService.Infrastructure.Consumers
             var body = eventArgs.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
 
+            using var scope = _scopeFactory.CreateScope();
+
             try
             {
-                await ProcessEvent(message);
+                await ProcessEvent(message, scope);
                 await _channel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false);
             }
             catch (Exception ex)
             {
                 await _channel.BasicNackAsync(eventArgs.DeliveryTag, multiple: false, requeue: false);
-                logger.LogError(ex, "Error processing message: {Message}", message);
+                _logger.LogError(ex, "Error processing message: {Message}", message);
             }
         }
 
-        private async Task ProcessEvent(string message)
+        private async Task ProcessEvent(string message, IServiceScope scope)
         {
-            var user = JsonSerializer.Deserialize<UserDTO>(message)!;
-            await notificationAppService.CreateAndSendNotificationAsync(new NotificationRequest(type: "email", recipient: user.Email, subject: "Compra realizada", body: $"Estimado {user.Name}, su compra ha sido realizada con éxito."));
+            var notificationAppService = scope.ServiceProvider.GetRequiredService<NotificationAppService>();
+
+            var client = JsonSerializer.Deserialize<ClientDTO>(message);
+
+            if (client is null)
+            {
+                throw new JsonException("The message couldn't be deserialized to ClientDTO.");
+            }
+
+            EmailRequest request = new EmailRequest {
+                Recipient = client.Email,
+                Subject = "Confirmación de Compra",
+                Body = $"Estimado {client.Name} su compra será enviada a {client.Address}",
+            };
+
+            await notificationAppService.CreateAndSendNotificationAsync(
+                new NotificationRequest("email", request.Recipient, request.Subject, request.Body)
+                );
+
             await Task.Delay(100);
         }
 
