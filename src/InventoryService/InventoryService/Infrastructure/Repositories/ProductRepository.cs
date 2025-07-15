@@ -26,8 +26,12 @@ namespace InventoryService.Infrastructure.Repositories
             if (product == null)
                 return false;
 
-            _applicationDBContext.Products.Remove(product);
-            await _applicationDBContext.SaveChangesAsync();
+            await _applicationDBContext.Products
+                            .Where(p => p.Id == id)
+                            .ExecuteUpdateAsync(setters => setters
+                                .SetProperty(p => p.IsDeleted, true));
+            
+            //await _applicationDBContext.SaveChangesAsync();
 
             return true;
         }
