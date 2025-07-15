@@ -7,7 +7,7 @@
 <div class="content">
 	<h3>Purchase Orders</h3>
 	<ul class="list-group my-4">
-		@foreach (PurchaseOrder purchaseOrder in Model.Where(p => p.PurchaseCompleted))
+		@foreach (PurchaseOrder purchaseOrder in Model)
 		{
 			<li class="list-group-item">
 				<h4><strong>Client:</strong> @purchaseOrder.Client!.Name</h4>

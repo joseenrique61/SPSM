@@ -30,6 +30,11 @@ public class PaymentHandler(ILogger<PaymentHandler> logger, IPaymentRepository p
         await producer.PublishAsync(client, "payment.exchange", "notification.payment.confirmed");
     }
 
+    public async Task<List<PurchaseOrder>> GetAllAsync()
+    {
+        return await paymentRepository.GetAllAsync();
+    }
+
     public async Task<List<PurchaseOrder>> GetByUserIdAsync(int id)
     {
         return await paymentRepository.GetByUserIdAsync(id);

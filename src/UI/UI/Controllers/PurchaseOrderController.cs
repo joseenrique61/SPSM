@@ -80,23 +80,6 @@ namespace UI.Controllers
 			}
 			
 			await unitOfWork.PurchaseOrder.Buy((int)clientId);
-			// PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
-			// purchaseOrder.PurchaseCompleted = true;
-			// purchaseOrder.Client = null;
-			// await unitOfWork.PurchaseOrder.Update(purchaseOrder);
-
-			// List<SparePart> spareParts = (await unitOfWork.SparePart.GetAll());
-			// foreach (SparePart sparePart in spareParts)
-			// {
-			// 	Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePart.Id);
-			// 	if (order == null)
-			// 	{
-			// 		continue;
-			// 	}
-			//
-			// 	sparePart.Stock -= order.Amount;
-			// 	await unitOfWork.SparePart.Update(sparePart);
-			// }
 
 			return RedirectToAction("Index", "Home");
 		}

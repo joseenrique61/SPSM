@@ -24,6 +24,21 @@ public class PaymentController(IPaymentHandler paymentHandler, ILogger<PaymentCo
     }
 
     [HttpGet]
+    [Route("payment/all")]
+    public async Task<IActionResult> GetAll()
+    {
+        try
+        {
+            return Ok(await paymentHandler.GetAllAsync());
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet]
     [Route("payment/userId/{id}")]
     public async Task<IActionResult> GetByUserId(int id)
     {
