@@ -105,6 +105,7 @@ namespace InventoryService.Application.Services
                 product.Name = productDTO.Name;
                 product.Description = productDTO.Description;
                 product.Price = productDTO.Price;
+                product.Stock = productDTO.Stock;
                 product.CategoryId = productDTO.CategoryId;
                 product.ImagePath = productDTO.ImagePath;
 

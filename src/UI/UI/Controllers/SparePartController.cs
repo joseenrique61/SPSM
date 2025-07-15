@@ -172,7 +172,7 @@ namespace UI.Controllers
 				var imagePath = Path.Combine("images", $"{fileName}{Path.GetExtension(file.FileName)}");
 				string fullPath = Path.Combine(webHostEnvironment.WebRootPath, imagePath);
 
-				sparePart.ImagePath = imagePath;
+				sparePart.ImagePath = Path.Combine(" ", imagePath).Trim();
 
 				ModelState.ClearValidationState("ImagePath");
 				if (!TryValidateModel(sparePart, "ImagePath"))
