@@ -14,6 +14,9 @@ public class PaymentRepository(ApplicationDbContext.ApplicationDbContext applica
 
     public async Task<List<PurchaseOrder>> GetByUserIdAsync(int id)
     {
-        return await applicationDbContext.PurchaseOrders.Where(p => p.UserId == id).ToListAsync();
+        return await applicationDbContext.PurchaseOrders
+            .Include(p => p.Products)
+            .Where(p => p.UserId == id)
+            .ToListAsync();
     }
 }

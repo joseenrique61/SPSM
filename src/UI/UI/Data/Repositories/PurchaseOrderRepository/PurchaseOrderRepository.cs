@@ -41,11 +41,16 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 		public async Task<List<PurchaseOrder>?> GetByClientId(int id)
 		{
 			HttpResponseMessage response = await client.Get($"payment/userId/{id}");
-			if (response.IsSuccessStatusCode)
+			
+			if (!response.IsSuccessStatusCode) return null;
+			
+			var purchaseOrders = new List<PurchaseOrder>();
+			foreach (var purchaseOrder in (await response.Content.ReadFromJsonAsync<List<PurchaseOrderDTO>>())!)
 			{
-				return await response.Content.ReadFromJsonAsync<List<PurchaseOrder>>();
+				purchaseOrders.Add(await ComposePurchaseOrder(purchaseOrder));
 			}
-			return null;
+			
+			return purchaseOrders;
 		}
 
 		public async Task<PurchaseOrder> GetCurrentByClientId(int id)

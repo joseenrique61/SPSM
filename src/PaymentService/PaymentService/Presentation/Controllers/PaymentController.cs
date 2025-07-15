@@ -24,7 +24,7 @@ public class PaymentController(IPaymentHandler paymentHandler, ILogger<PaymentCo
     }
 
     [HttpGet]
-    [Route("userId/{id}")]
+    [Route("payment/userId/{id}")]
     public async Task<IActionResult> GetByUserId(int id)
     {
         try
