@@ -15,5 +15,7 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 		public Task<bool> RemoveProduct(int userId, Order order);
 		
 		public Task<bool> DeleteProduct(int userId, int productId);
+		
+		public Task<bool> Buy(int userId);
 	}
 }

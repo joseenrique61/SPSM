@@ -27,32 +27,19 @@ namespace UI.Controllers
 
 		public async Task<IActionResult> RemoveFromCart(int sparePartId)
 		{
-			throw new NotImplementedException();
-			// if (!authenticator.Authenticate(UserTypes.Client))
-			// {
-			// 	return RedirectToAction("Login", "Client");
-			// }
-			//
-			// int? clientId = HttpContext.Session.GetInt32("ClientId");
-			// if (clientId == null)
-			// {
-			// 	return RedirectToAction("Login", "Client");
-			// }
-			//
-			// PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
-			//
-			//
-			// var existingOrder = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePartId);
-			//
-			// if (existingOrder != null)
-			// {
-			//
-			// 	purchaseOrder.Orders.Remove(existingOrder);
-			// 	purchaseOrder.Client = null;
-			//
-			// 	await unitOfWork.PurchaseOrder.Update(purchaseOrder);
-			// }
-			// return RedirectToAction("CartInfo", "PurchaseOrder");
+			if (!authenticator.Authenticate(UserTypes.Client))
+			{
+				return RedirectToAction("Login", "Client");
+			}
+			
+			int? clientId = HttpContext.Session.GetInt32("ClientId");
+			if (clientId == null)
+			{
+				return RedirectToAction("Login", "Client");
+			}
+			await unitOfWork.PurchaseOrder.DeleteProduct(clientId.Value, sparePartId);	
+			
+			return RedirectToAction("CartInfo", "PurchaseOrder");
 		}
 
 		public async Task<IActionResult> PurchaseOrderListAdmin()
@@ -81,7 +68,6 @@ namespace UI.Controllers
 
 		public async Task<IActionResult> Buy()
 		{
-			throw new NotImplementedException();
 			if (!authenticator.Authenticate(UserTypes.Client))
 			{
 				return RedirectToAction("Login", "Client");
@@ -92,7 +78,8 @@ namespace UI.Controllers
 			{
 				return RedirectToAction("Login", "Client");
 			}
-
+			
+			await unitOfWork.PurchaseOrder.Buy((int)clientId);
 			// PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
 			// purchaseOrder.PurchaseCompleted = true;
 			// purchaseOrder.Client = null;

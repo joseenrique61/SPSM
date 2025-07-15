@@ -5,10 +5,12 @@ using PaymentService.Infrastructure.Interfaces.Producers;
 
 namespace PaymentService.Application.Handlers;
 
-public class PaymentHandler(IPaymentRepository paymentRepository, IShoppingCartClient shoppingCartClient, IInventoryClient inventoryClient, ICustomerClient customerClient, IProducer producer) : IPaymentHandler
+public class PaymentHandler(ILogger<PaymentHandler> logger, IPaymentRepository paymentRepository, IShoppingCartClient shoppingCartClient, IInventoryClient inventoryClient, ICustomerClient customerClient, IProducer producer) : IPaymentHandler
 {
     public async Task PayAsync(PurchaseOrder purchaseOrder)
     {
+        logger.LogInformation($"Processing payment for user {purchaseOrder.UserId}");
+        
         if (!await inventoryClient.ReduceStock(purchaseOrder.Products))
         {
             throw new Exception("Not enough stock.");
@@ -26,5 +28,10 @@ public class PaymentHandler(IPaymentRepository paymentRepository, IShoppingCartC
 
 
         await producer.PublishAsync(client, "payment.exchange", "notification.payment.confirmed");
+    }
+
+    public async Task<List<PurchaseOrder>> GetByUserIdAsync(int id)
+    {
+        return await paymentRepository.GetByUserIdAsync(id);
     }
 }

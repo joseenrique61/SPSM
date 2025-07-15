@@ -40,13 +40,12 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 
 		public async Task<List<PurchaseOrder>?> GetByClientId(int id)
 		{
-			throw new NotImplementedException();
-			// HttpResponseMessage response = await client.Get($"shopping_cart/userId/{id}");
-			// if (response.IsSuccessStatusCode)
-			// {
-			// 	return await response.Content.ReadFromJsonAsync<List<PurchaseOrder>>();
-			// }
-			// return null;
+			HttpResponseMessage response = await client.Get($"payment/userId/{id}");
+			if (response.IsSuccessStatusCode)
+			{
+				return await response.Content.ReadFromJsonAsync<List<PurchaseOrder>>();
+			}
+			return null;
 		}
 
 		public async Task<PurchaseOrder> GetCurrentByClientId(int id)
@@ -64,14 +63,26 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 			})).IsSuccessStatusCode;
 		}
 
-		public Task<bool> RemoveProduct(int userId, Order order)
+		public async Task<bool> RemoveProduct(int userId, Order order)
 		{
-			throw new NotImplementedException();
+			return (await client.Post($"shopping_cart/remove_item/{userId}", new OrderDTO()
+			{
+				Id = order.SparePartId,
+				Amount = order.Amount
+			})).IsSuccessStatusCode;
 		}
 
-		public Task<bool> DeleteProduct(int userId, int productId)
+		public async Task<bool> DeleteProduct(int userId, int productId)
 		{
-			throw new NotImplementedException();
+			return (await client.Delete($"shopping_cart/delete_item/{userId}?productId={productId}")).IsSuccessStatusCode;
+		}
+
+		public async Task<bool> Buy(int userId)
+		{
+			var purchaseOrder = await GetCurrentByClientId(userId);
+			var paymentDto = await purchaseOrder.ToPaymentDTO(sparePartRepository);
+			
+			return (await client.Post($"pay/", paymentDto)).IsSuccessStatusCode;
 		}
 	}
 }
