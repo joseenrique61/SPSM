@@ -9,7 +9,7 @@ public class ProductRepository(IApplicationDbContext dbContext) : IProductReposi
 {
     public async Task<List<Product>> GetAll()
     {
-        return await dbContext.Products.ToListAsync();
+        return await dbContext.Products.Include(p => p.Category).ToListAsync();
     }
 
     public async Task<Product?> GetByIdAsync(int id)

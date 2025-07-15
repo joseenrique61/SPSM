@@ -26,6 +26,9 @@ bld/
 # Environment variables
 .env
 
+# Images
+images/
+
 # Rider
 .idea/
 

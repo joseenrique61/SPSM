@@ -27,7 +27,7 @@ namespace UI.Models
 		public double Price { get; set; }
 
 		[Required]
-		public string Image { get; set; }
+		public string ImagePath { get; set; }
 
 		[Required]
 		[ForeignKey(nameof(Category))]
