@@ -37,13 +37,13 @@ namespace UI.Data.Repositories.CategoryRepository
 
 		public async Task<bool> Create(Category category)
 		{
-			HttpResponseMessage response = await client.Post("inventory/category/create", category);
+			HttpResponseMessage response = await client.Post("inventory/category/create/", category);
 			return response.IsSuccessStatusCode;
 		}
 
 		public async Task<bool> Update(Category category)
 		{
-			HttpResponseMessage response = await client.Put("inventory/category/update", category);
+			HttpResponseMessage response = await client.Put($"inventory/category/update/{category.Id}", category);
 			return response.IsSuccessStatusCode;
 		}
 

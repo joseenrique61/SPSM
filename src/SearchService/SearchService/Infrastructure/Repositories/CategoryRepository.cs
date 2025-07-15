@@ -59,6 +59,7 @@ namespace SearchService.Infrastructure.Repositories
                 .Where(c => c.Id == id)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(c => c.Name, category.Name));
+            await _applicationDBContext.SaveChangesAsync();
 
             return true;
         }

@@ -162,4 +162,13 @@ public class DataSeeder(ILogger<DataSeeder> logger)
             }
         }
     }
+
+    public async Task SeedAdmin()
+    {
+        await _client.PostAsJsonAsync("user/register_admin", new Admin()
+        {
+            Email = "admin@admin.com",
+            Password = "admin"
+        });
+    }
 }

@@ -22,7 +22,7 @@ namespace NotificationService.Infrastructure.Consumers
         {
             _logger = logger;
             _queueConnection = queueConnection;
-                 = serviceScopeFactory;
+            _scopeFactory = serviceScopeFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

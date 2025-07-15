@@ -119,6 +119,12 @@ services:
         methods:
           - POST
         strip_path: false
+      - name: register-admin
+        paths:
+          - /user/register_admin
+        methods:
+          - POST
+        strip_path: false
       - name: login
         paths:
           - /user/login

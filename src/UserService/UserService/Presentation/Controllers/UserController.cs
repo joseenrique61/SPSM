@@ -29,6 +29,21 @@ public class UserController(IUserRepository userRepository, ILogger<UserControll
     }
 
     [HttpPost]
+    [Route("register_admin")]
+    public async Task<IActionResult> RegisterAdmin([FromBody] User user)
+    {
+        try
+        {
+            var response = await userRepository.RegisterAdminAsync(user);
+            return Ok(response);
+        }
+        catch
+        {
+            return Conflict("The user already exists.");
+        }
+    }
+
+    [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] User? user)
     {
