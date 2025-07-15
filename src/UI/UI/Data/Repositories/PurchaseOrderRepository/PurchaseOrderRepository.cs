@@ -25,7 +25,7 @@ namespace UI.Data.Repositories.PurchaseOrderRepository
 		
 		public async Task<List<PurchaseOrder>?> GetAll()
 		{
-			HttpResponseMessage response = await client.Get("shopping_cart/all");
+			HttpResponseMessage response = await client.Get("payment/all/");
 			
 			if (!response.IsSuccessStatusCode) return null;
 			

@@ -20,6 +20,18 @@ public class UserRepository(ApplicationDbContext.ApplicationDbContext context, I
 	    return responseGenerator.Generate(client.User.Email, "client", client.Id);
     }
 
+    public async Task<JwtResponse> RegisterAdminAsync(User user)
+    {
+	    user.PasswordHash = passwordHasher.GenerateHash(user.Password!);
+	    await context.Users.AddAsync(user);
+	    await context.SaveChangesAsync();
+	    
+	    await context.Administrators.AddAsync(new Administrator() { UserId = user.Id });
+	    await context.SaveChangesAsync();
+
+	    return responseGenerator.Generate(user.Email, "admin", user.Id);
+    }
+
     public async Task<JwtResponse> LoginAsync(User user)
     {
 	    var userFromDb = await context.Users.FirstAsync(x => x.Email == user.Email);

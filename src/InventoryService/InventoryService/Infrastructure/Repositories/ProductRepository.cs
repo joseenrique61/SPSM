@@ -31,7 +31,7 @@ namespace InventoryService.Infrastructure.Repositories
                             .ExecuteUpdateAsync(setters => setters
                                 .SetProperty(p => p.IsDeleted, true));
             
-            //await _applicationDBContext.SaveChangesAsync();
+            await _applicationDBContext.SaveChangesAsync();
 
             return true;
         }
@@ -63,6 +63,7 @@ namespace InventoryService.Infrastructure.Repositories
                     .SetProperty(p => p.Stock, product.Stock)
                     .SetProperty(p => p.CategoryId, product.CategoryId)
                     .SetProperty(p => p.ImagePath, product.ImagePath));
+            await _applicationDBContext.SaveChangesAsync();
 
             return true;
         }

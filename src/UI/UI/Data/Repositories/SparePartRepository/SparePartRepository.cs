@@ -10,7 +10,7 @@ namespace UI.Data.Repositories.SparePartRepository
             HttpResponseMessage response = await client.Get("search/product/all");
             if (response.IsSuccessStatusCode)
             {
-                return (await response.Content.ReadFromJsonAsync<List<SparePart>>())!;
+                return (await response.Content.ReadFromJsonAsync<List<SparePart>>())!.Where(x => !x.IsDeleted).ToList();
             }
             return [];
         }
@@ -43,7 +43,7 @@ namespace UI.Data.Repositories.SparePartRepository
 
         public async Task<bool> Update(SparePart sparePart)
         {
-            HttpResponseMessage response = await client.Put("inventory/product/update/", sparePart);
+            HttpResponseMessage response = await client.Put($"inventory/product/update/{sparePart.Id}", sparePart);
             return response.IsSuccessStatusCode;
         }
 

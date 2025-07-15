@@ -6,5 +6,7 @@ public interface IPaymentHandler
 {
     public Task PayAsync(PurchaseOrder purchaseOrder);
     
+    public Task<List<PurchaseOrder>> GetAllAsync();
+    
     public Task<List<PurchaseOrder>> GetByUserIdAsync(int id);
 }

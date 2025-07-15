@@ -99,7 +99,7 @@ namespace UI.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(
-			[Bind("Id,Name,Description,Stock,Price,Image,CategoryId")] SparePart sparePart)
+			[Bind("Id,Name,Description,Stock,Price,ImagePath,CategoryId")] SparePart sparePart)
 		{
 			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
@@ -109,13 +109,13 @@ namespace UI.Controllers
 			IFormFile file = HttpContext.Request.Form.Files[0];
 
 			string fileName = Guid.NewGuid().ToString();
-			string imagePath = $@"\images\{fileName}{Path.GetExtension(file.FileName)}";
-			string fullPath = webHostEnvironment.WebRootPath + imagePath;
+			var imagePath = Path.Combine("images", $"{fileName}{Path.GetExtension(file.FileName)}");
+			string fullPath = Path.Combine(webHostEnvironment.WebRootPath, imagePath);
 
-			sparePart.Image = imagePath;
+			sparePart.ImagePath = Path.Combine(" ", imagePath).Trim();
 
-			ModelState.ClearValidationState("Image");
-			if (!TryValidateModel(sparePart, "Image"))
+			ModelState.ClearValidationState("ImagePath");
+			if (!TryValidateModel(sparePart, "ImagePath"))
 			{
 				ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
 				return View(sparePart);
@@ -151,7 +151,7 @@ namespace UI.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Edit(int id,
-			[Bind("Id,Name,Description,Stock,Price,CategoryId")] SparePart sparePart)
+			[Bind("Id,Name,Description,Stock,Price,ImagePath,CategoryId")] SparePart sparePart)
 		{
 			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
@@ -169,13 +169,13 @@ namespace UI.Controllers
 				IFormFile file = files[0];
 
 				string fileName = Guid.NewGuid().ToString();
-				string imagePath = $@"\images\{fileName}{Path.GetExtension(file.FileName)}";
-				string fullPath = webHostEnvironment.WebRootPath + imagePath;
+				var imagePath = Path.Combine("images", $"{fileName}{Path.GetExtension(file.FileName)}");
+				string fullPath = Path.Combine(webHostEnvironment.WebRootPath, imagePath);
 
-				sparePart.Image = imagePath;
+				sparePart.ImagePath = Path.Combine(" ", imagePath).Trim();
 
-				ModelState.ClearValidationState("Image");
-				if (!TryValidateModel(sparePart, "Image"))
+				ModelState.ClearValidationState("ImagePath");
+				if (!TryValidateModel(sparePart, "ImagePath"))
 				{
 					ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
 					return View(sparePart);
@@ -186,10 +186,10 @@ namespace UI.Controllers
 			}
 			else
 			{
-				sparePart.Image = (await unitOfWork.SparePart.GetById(id))!.Image;
+				sparePart.ImagePath = (await unitOfWork.SparePart.GetById(id))!.ImagePath;
 
-				ModelState.ClearValidationState("Image");
-				if (!TryValidateModel(sparePart, "Image"))
+				ModelState.ClearValidationState("ImagePath");
+				if (!TryValidateModel(sparePart, "ImagePath"))
 				{
 					ViewData["CategoryId"] = new SelectList(await unitOfWork.Category.GetAll(), "Id", "Name");
 					return View(sparePart);

@@ -12,6 +12,13 @@ public class PaymentRepository(ApplicationDbContext.ApplicationDbContext applica
         await applicationDbContext.SaveChangesAsync();
     }
 
+    public async Task<List<PurchaseOrder>> GetAllAsync()
+    {
+        return await applicationDbContext.PurchaseOrders
+            .Include(p => p.Products)
+            .ToListAsync();
+    }
+
     public async Task<List<PurchaseOrder>> GetByUserIdAsync(int id)
     {
         return await applicationDbContext.PurchaseOrders

@@ -119,6 +119,12 @@ services:
         methods:
           - POST
         strip_path: false
+      - name: register-admin
+        paths:
+          - /user/register_admin
+        methods:
+          - POST
+        strip_path: false
       - name: login
         paths:
           - /user/login
@@ -203,6 +209,17 @@ services:
           - /pay/
         methods:
           - POST
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+      - name: get-all-payments
+        paths:
+          - /payment/all/
+        methods:
+          - GET
         strip_path: false
         plugins:
           - name: jwt

@@ -154,15 +154,34 @@ namespace SearchService.Infrastructure.QueueManager.Consumers
 
                         if (categoryAdded != null)
                         {
-                            _logger.LogInformation("Processing reduction stock for product ID: {CategoryId}", categoryAdded.Id);
+                            _logger.LogInformation("Processing creation for category ID: {CategoryId}", categoryAdded.Id);
 
                             await _categoryRepository.AddCategoryAsync(categoryAdded);
 
-                            _logger.LogInformation("Processing reduction stock for product ID: {CategoryId} was completed succesfully", categoryAdded.Id);
+                            _logger.LogInformation("Processing creation for category ID: {CategoryId} was completed successfully", categoryAdded.Id);
                         }
 
                         break;
                     }
+                case "inventory.category.updated":
+                {
+                    var categoryAdded = JsonSerializer.Deserialize<Category>(message);
+
+                    if (categoryAdded != null)
+                    {
+                        _logger.LogInformation("Processing update for category ID: {CategoryId}", categoryAdded.Id);
+
+                        if (!await _categoryRepository.UpdateCategoryAsync(categoryAdded.Id, categoryAdded))
+                        {
+                            _logger.LogError("Error updating category with ID: {CategoryId}", categoryAdded.Id);
+                            break;
+                        }
+
+                        _logger.LogInformation("Processing update for category ID: {CategoryId} was completed successfully", categoryAdded.Id);
+                    }
+
+                    break;
+                }
                 default:
                     _logger.LogWarning("Unrecognized Routing Key: '{RoutingKey}'. The message is ignored.", routingKey);
                     break;
