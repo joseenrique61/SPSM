@@ -128,6 +128,17 @@ services:
   - name: shopping-cart-service
     url: http://shopping_cart_service:8080  # Internal URL of the product
     routes:
+      - name: get-cart
+        paths:
+          - /shopping_cart/userId/
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
       - name: add-to-cart
         paths:
           - /shopping_cart/add_item/

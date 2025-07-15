@@ -8,6 +8,13 @@ namespace ShoppingCartService.Presentation.Controllers;
 [ApiController]
 public class ShoppingCartController(IPurchaseOrderHandler purchaseOrderHandler) : Controller
 {
+    [HttpGet]
+    [Route("userId/{userId}")]
+    public async Task<IActionResult> GetCart(int userId)
+    {
+        return Ok(await purchaseOrderHandler.GetCart(userId));
+    }
+    
     [HttpPost]
     [Route("add_item/{userId}")]
     public async Task<IActionResult> AddItem(int userId, [FromBody] Product product)

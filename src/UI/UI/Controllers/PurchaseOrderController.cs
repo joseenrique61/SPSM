@@ -5,26 +5,16 @@ using UI.Utilities;
 
 namespace UI.Controllers
 {
-	public class PurchaseOrderController : BaseController
+	public class PurchaseOrderController(IUnitOfWork unitOfWork, IAuthenticator authenticator) : BaseController
 	{
-		private readonly IUnitOfWork _unitOfWork;
-
-		private readonly IAuthenticator _authenticator;
-
-		public PurchaseOrderController(IUnitOfWork unitOfWork, IAuthenticator authenticator)
-		{
-			_unitOfWork = unitOfWork;
-			_authenticator = authenticator;
-		}
-
 		public async Task<IActionResult> CartInfo()
 		{
-			if (!_authenticator.Authenticate(UserTypes.Client))
+			if (!authenticator.Authenticate(UserTypes.Client))
 			{
 				return RedirectToAction("Login", "Client");
 			}
 
-			PurchaseOrder purchaseOrder = await _unitOfWork.PurchaseOrder.GetCurrentByClientId((int)HttpContext.Session.GetInt32("ClientId")!);
+			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)HttpContext.Session.GetInt32("ClientId")!);
 
 			List<string> warnings = purchaseOrder.Orders
 				.Where(o => o.Amount > o.SparePart!.Stock)
@@ -37,7 +27,7 @@ namespace UI.Controllers
 
 		public async Task<IActionResult> RemoveFromCart(int sparePartId)
 		{
-			if (!_authenticator.Authenticate(UserTypes.Client))
+			if (!authenticator.Authenticate(UserTypes.Client))
 			{
 				return RedirectToAction("Login", "Client");
 			}
@@ -48,7 +38,7 @@ namespace UI.Controllers
 				return RedirectToAction("Login", "Client");
 			}
 
-			PurchaseOrder purchaseOrder = await _unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
+			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
 
 
 			var existingOrder = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePartId);
@@ -59,38 +49,38 @@ namespace UI.Controllers
 				purchaseOrder.Orders.Remove(existingOrder);
 				purchaseOrder.Client = null;
 
-				await _unitOfWork.PurchaseOrder.Update(purchaseOrder);
+				await unitOfWork.PurchaseOrder.Update(purchaseOrder);
 			}
 			return RedirectToAction("CartInfo", "PurchaseOrder");
 		}
 
 		public async Task<IActionResult> PurchaseOrderListAdmin()
 		{
-			if (!_authenticator.Authenticate(UserTypes.Admin))
+			if (!authenticator.Authenticate(UserTypes.Admin))
 			{
 				return RedirectToAction("Login", "Client");
 			}
 
-			return View((await _unitOfWork.PurchaseOrder
+			return View((await unitOfWork.PurchaseOrder
 				.GetAll())!
 				.OrderByDescending(p => p.Id));
 		}
 
 		public async Task<IActionResult> PurchaseOrderListClient()
 		{
-			if (!_authenticator.Authenticate(UserTypes.Client))
+			if (!authenticator.Authenticate(UserTypes.Client))
 			{
 				return RedirectToAction("Login", "Client");
 			}
 
-			return View((await _unitOfWork.PurchaseOrder
+			return View((await unitOfWork.PurchaseOrder
 				.GetByClientId((int)HttpContext.Session.GetInt32("ClientId")!))!
 				.OrderByDescending(p => p.Id));
 		}
 
 		public async Task<IActionResult> Buy()
 		{
-			if (!_authenticator.Authenticate(UserTypes.Client))
+			if (!authenticator.Authenticate(UserTypes.Client))
 			{
 				return RedirectToAction("Login", "Client");
 			}
@@ -101,12 +91,12 @@ namespace UI.Controllers
 				return RedirectToAction("Login", "Client");
 			}
 
-			PurchaseOrder purchaseOrder = await _unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
+			PurchaseOrder purchaseOrder = await unitOfWork.PurchaseOrder.GetCurrentByClientId((int)clientId);
 			purchaseOrder.PurchaseCompleted = true;
 			purchaseOrder.Client = null;
-			await _unitOfWork.PurchaseOrder.Update(purchaseOrder);
+			await unitOfWork.PurchaseOrder.Update(purchaseOrder);
 
-			List<SparePart> spareParts = (await _unitOfWork.SparePart.GetAll())!;
+			List<SparePart> spareParts = (await unitOfWork.SparePart.GetAll());
 			foreach (SparePart sparePart in spareParts)
 			{
 				Order? order = purchaseOrder.Orders.FirstOrDefault(o => o.SparePartId == sparePart.Id);
@@ -116,7 +106,7 @@ namespace UI.Controllers
 				}
 
 				sparePart.Stock -= order.Amount;
-				await _unitOfWork.SparePart.Update(sparePart);
+				await unitOfWork.SparePart.Update(sparePart);
 			}
 
 			return RedirectToAction("Index", "Home");
