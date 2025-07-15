@@ -1,32 +1,42 @@
 using Microsoft.EntityFrameworkCore;
-using NotificationService.Domain.Interfaces;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.Services;
+using NotificationService.Domain.Interfaces;
 using NotificationService.Infraestructure.NotificationsProvider;
 using NotificationService.Infraestructure.Persistence;
 using NotificationService.Infraestructure.Persistence.Repositories;
 using NotificationService.Infrastructure;
 using NotificationService.Infrastructure.Consumers;
 using NotificationService.Infrastructure.Interfaces;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();   
+
 builder.Services.AddDbContext<ApplicationDBContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register the implementation of the Repository.
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
+// Register the Main Application service.
+builder.Services.AddScoped<NotificationAppService>();
 
 // RabbitMQ
 builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddSingleton<IQueueConnection, RabbitMQConnection>();
 builder.Services.AddHostedService<NotificationsEventsConsumer>();
-
-// Register the Main Application service.
-builder.Services.AddScoped<NotificationAppService>();
-
-// Register the implementation of the Repository.
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-
-// Add services to the container.
-builder.Services.AddControllers();
 
 builder.Services.AddTransient<EmailProvider>();
 builder.Services.AddTransient<SMSProvider>();
@@ -45,9 +55,6 @@ builder.Services.AddTransient<Func<string, INotificationProvider>>
         }
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

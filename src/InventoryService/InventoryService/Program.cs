@@ -24,8 +24,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<SoftDeleteInterceptor>();
-builder.Services.AddDbContext<IApplicationDBContext, ApplicationDBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<IApplicationDBContext, ApplicationDBContext>((serviceProvider, options) =>
+{
+    var interceptor = serviceProvider.GetRequiredService<SoftDeleteInterceptor>();
+
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .AddInterceptors(interceptor);
+});
 
 builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
 
