@@ -1,14 +1,14 @@
-﻿using InventoryService.Infrastructure.Interfaces;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using SearchService.Infrastructure.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
-namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
+namespace SearchService.Infrastructure.QueueManager
 {
     public class RabbitMQConnection : IQueueConnection
     {
         private readonly IConnectionFactory _connectionFactory;
-        private static readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1); 
+        private static readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1);
         private readonly ILogger<RabbitMQConnection> _logger;
 
         private IConnection? _connection;
@@ -24,7 +24,7 @@ namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
                 Port = config.Port,
                 VirtualHost = config.VirtualHost,
                 UserName = config.Username,
-                Password = config.Password 
+                Password = config.Password
             };
         }
 
@@ -34,7 +34,7 @@ namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
         {
             if (IsConnected) return;
 
-            _logger.LogInformation("Intentando establecer conexión con RabbitMQ...");
+            _logger.LogInformation("Trying to connect to RabbitMQ...");
 
             await _connectionLock.WaitAsync(cancellationToken);
             try
@@ -43,11 +43,11 @@ namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
 
                 _connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
-                _logger.LogInformation("Conexión a RabbitMQ establecida exitosamente.");
+                _logger.LogInformation("Connection to RabbitMQ established successfully.");
             }
             catch (BrokerUnreachableException ex)
             {
-                _logger.LogCritical(ex, "No se pudo conectar a RabbitMQ. El host es inalcanzable.");
+                _logger.LogCritical(ex, "Could not connect to RabbitMQ. The host is unreachable.");
                 throw;
             }
             finally
@@ -74,7 +74,7 @@ namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "Error al cerrar la conexión de RabbitMQ.");
+                _logger.LogCritical(ex, "Error closing RabbitMQ connection.");
             }
         }
     }

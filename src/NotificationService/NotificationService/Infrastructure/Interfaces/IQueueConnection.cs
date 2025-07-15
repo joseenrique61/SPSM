@@ -1,6 +1,6 @@
 ﻿using RabbitMQ.Client;
 
-namespace InventoryService.Infrastructure.Interfaces
+namespace NotificationService.Infrastructure.Interfaces
 {
     public interface IQueueConnection
     {

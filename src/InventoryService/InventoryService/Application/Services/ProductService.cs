@@ -2,17 +2,22 @@
 using InventoryService.Application.Interfaces;
 using InventoryService.Domain.Models;
 using InventoryService.Domain.Repositories;
+using InventoryService.Infrastructure.Interfaces.Producers;
 using InventoryService.Infrastructure.Repositories;
 
 namespace InventoryService.Application.Services
 {
     public class ProductService : IProductService
     {
+        private string exchange => "inventory.exchange";
+
         private readonly IProductRepository _productRepository;
-        private readonly ILogger _logger;
-        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
+        private readonly ILogger<ProductService> _logger;
+        private readonly IProducer _notificationProducer;
+        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger, IProducer notificationProducer )
         {
             _productRepository = productRepository;
+            _notificationProducer = notificationProducer;
             _logger = logger;
         }
 
@@ -25,8 +30,15 @@ namespace InventoryService.Application.Services
                 if (!success)
                 {
                     _logger.LogInformation($"Product with ID: {id} cannot be deleted. Verify the ID");
+
                     return false;
                 }
+
+                await _productRepository.DeleteProductAsync(id);
+                var productToDelete = await _productRepository.GetByIdAsync(id);
+
+                // Publishing a message to RabbitMQ
+                await _notificationProducer.PublishAsync(productToDelete, exchange, "inventory.product.deleted");
 
                 _logger.LogInformation($"Product with ID: {id} deleted sucessfully.");
                 return true;
@@ -61,6 +73,9 @@ namespace InventoryService.Application.Services
                 };
 
                 await _productRepository.AddProductAsync(product);
+
+                // Publishing a message to RabbitMQ
+                await _notificationProducer.PublishAsync(product, exchange, "inventory.product.added");
 
                 _logger.LogInformation($"Product with ID: {product.Id} created sucessfully.");
                 return true;
@@ -101,6 +116,9 @@ namespace InventoryService.Application.Services
                     return false;
                 }
 
+                // Publishing a message to RabbitMQ
+                await _notificationProducer.PublishAsync(product, exchange, "inventory.product.updated");
+
                 _logger.LogInformation($"Product with ID: {id} updated sucessfully.");
                 return true;
             }
@@ -131,7 +149,7 @@ namespace InventoryService.Application.Services
                     {
                         _logger.LogInformation($"Product with ID: {reduceDTO.Id} cannot be reduced. Not Enough Stock");
                         return false;
-                    } 
+                    }
 
                     product.Stock -= reduceDTO.Amount;
 
@@ -147,6 +165,9 @@ namespace InventoryService.Application.Services
                         _logger.LogInformation($"Product with ID: {product.Id} cannot be reduced. Verify the ID");
                         return false;
                     }
+
+                    // Publishing a message to RabbitMQ
+                    await _notificationProducer.PublishAsync(product, exchange, "inventory.product.reduced");
 
                     _logger.LogInformation($"Product with ID: {product.Id} reduced sucessfully.");
                 }

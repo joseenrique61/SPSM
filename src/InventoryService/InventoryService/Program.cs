@@ -3,6 +3,9 @@ using InventoryService.Application.Services;
 using InventoryService.Domain.Repositories;
 using InventoryService.Infrastructure.ApplicationDBContext;
 using InventoryService.Infrastructure.Interceptors;
+using InventoryService.Infrastructure.Interfaces;
+using InventoryService.Infrastructure.Interfaces.Producers;
+using InventoryService.Infrastructure.QueueManager.RabbitMQ;
 using InventoryService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -24,6 +27,11 @@ builder.Services.AddSingleton<SoftDeleteInterceptor>();
 builder.Services.AddDbContext<IApplicationDBContext, ApplicationDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.Configure<RabbitMQConfiguration>(builder.Configuration.GetSection("RabbitMQ"));
+
+builder.Services.AddSingleton<IQueueConnection, RabbitMQConnection>();
+
+builder.Services.AddScoped<IProducer, RabbitMQProducer>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 

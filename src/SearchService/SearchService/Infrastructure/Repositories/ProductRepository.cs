@@ -33,4 +33,39 @@ public class ProductRepository(IApplicationDbContext dbContext) : IProductReposi
             .Where(p => p.Category!.Name.ToLower().Contains(categoryName.ToLower()))
             .ToListAsync();
     }
+
+    public async Task AddAsync(Product product)
+    {
+        await dbContext.Products.AddAsync(product);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Product product)
+    {
+        var existingProduct = await dbContext.Products.FindAsync(product.Id);
+        if (existingProduct != null)
+        {
+            await dbContext.Products
+                .Where(p => p.Id == product.Id)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(p => p.Name, product.Name)
+                    .SetProperty(p => p.Description, product.Description)
+                    .SetProperty(p => p.Price, product.Price)
+                    .SetProperty(p => p.Stock, product.Stock)
+                    .SetProperty(p => p.CategoryId, product.CategoryId)
+                    .SetProperty(p => p.ImagePath, product.ImagePath));
+        }
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var product = await dbContext.Products.FindAsync(id);
+
+        if (product != null)
+        {
+            product.IsDeleted = true;
+            await dbContext.SaveChangesAsync();
+        }  
+    }
 }

@@ -1,11 +1,10 @@
-﻿using InventoryService.Domain.Models;
-using InventoryService.Infrastructure.Interfaces;
-using InventoryService.Infrastructure.Interfaces.Producers;
-using RabbitMQ.Client;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
+using PaymentService.Infrastructure.Interfaces;
+using PaymentService.Infrastructure.Interfaces.Producers;
+using RabbitMQ.Client;
 
-namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
+namespace PaymentService.Infrastructure.QueueManager.RabbitMQ
 {
     public class RabbitMQProducer : IProducer
     {

@@ -1,9 +1,9 @@
-﻿using InventoryService.Infrastructure.Interfaces;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using PaymentService.Infrastructure.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
-namespace InventoryService.Infrastructure.QueueManager.RabbitMQ
+namespace PaymentService.Infrastructure.QueueManager.RabbitMQ
 {
     public class RabbitMQConnection : IQueueConnection
     {

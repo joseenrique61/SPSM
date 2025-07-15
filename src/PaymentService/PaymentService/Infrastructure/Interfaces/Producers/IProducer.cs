@@ -1,6 +1,4 @@
-﻿using InventoryService.Domain.Models;
-
-namespace InventoryService.Infrastructure.Interfaces.Producers
+﻿namespace PaymentService.Infrastructure.Interfaces.Producers
 {
     public interface IProducer
     {
